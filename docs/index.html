@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RECSA — Dashboard Integral P&L</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0e1a;--s1:#111827;--s2:#1a2235;--bd:#2a3450;--tx:#e8ecf4;--t2:#8899b4;--ac:#4f8cff;--gn:#00d4aa;--rd:#ff4d6a;--or:#ffb84d;--pu:#a78bfa}
@@ -245,7 +247,8 @@ function renderPricing(){
   h+='<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap"><select id="pr-l" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option>';
   for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
   h+='</select><select id="pr-st" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todos</option><option value="BAJO">< Breakeven</option><option value="OK">≥ Breakeven</option></select>';
-  h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1"></div>';
+  h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1">';
+  h+='<button class="btn-sm" style="background:var(--rd);color:#fff;border-color:var(--rd);font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button></div>';
   h+='<div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
   var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=((c.mp/c.r)+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
   var kh='<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">';
@@ -437,6 +440,41 @@ function exportCSV(){
   var csv='Línea,Producto,Precio,MP,Rend,MP/R,MOD,Imp,Flete,CMG,CMG%,GF,EBITDA,EBITDA%,Vol,Revenue,EBITDA Total,CF Inv\n';
   for(var i=0;i<all.length;i++){var c=all[i];csv+='"'+c.l+'","'+c.p+'",'+fd(c.pv)+','+c.mp.toFixed(4)+','+c.r+','+(c.mp/c.r).toFixed(4)+','+fd(c.mod)+','+fd(c.imp)+','+fd(c.fl)+','+fd(c.cmg)+','+(c.cmgPct*100).toFixed(1)+','+fd(gf)+','+fd(c.ebitda)+','+(c.ebitdaPct*100).toFixed(1)+','+c.v+','+c.rev.toFixed(0)+','+c.ebitdaAbs.toFixed(0)+','+c.cfi.toFixed(4)+'\n';}
   var b=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='RECSA_PL_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+// ===== PDF EXPORT =====
+function exportPricingPDF(){
+  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var items=[];
+  for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
+    var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);
+    var p10=pBE*1.10;var p20=pBE*1.20;
+    var e10=p10-(c.mp/c.r)-mod-p10*impPct-fl-gf;
+    var e20=p20-(c.mp/c.r)-mod-p20*impPct-fl-gf;
+    items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,p10:p10,e10:e10,p20:p20,e20:e20,gap:c.pv-pBE,v:c.v});
+  }
+  items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
+  var doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var pageW=doc.internal.pageSize.getWidth();
+  doc.setFillColor(26,34,53);doc.rect(0,0,pageW,28,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(79,140,255);
+  doc.text('RECSA',14,14);doc.setTextColor(232,236,244);doc.text(' \u2014 Pricing Estrat\u00e9gico',14+doc.getTextWidth('RECSA'),14);
+  doc.setFontSize(9);doc.setTextColor(136,153,180);
+  doc.text('Breakeven (EBITDA=0) | +10% | +20%  \u00b7  TC: '+gp('pTC')+' | GF: '+gf.toFixed(4)+' | MOD: '+mod.toFixed(4)+' | Imp: '+(impPct*100).toFixed(1)+'%  \u00b7  '+new Date().toLocaleDateString('es-AR'),14,22);
+  var nB=0,nA=0;items.forEach(function(c){if(c.gap<0)nB++;else nA++;});
+  doc.setFontSize(8);doc.setTextColor(100,120,150);
+  doc.text(items.length+' productos  |  '+nA+' sobre breakeven  |  '+nB+' bajo breakeven',pageW-14,22,{align:'right'});
+  var tBody=items.map(function(c){
+    var status=c.gap>=c.pBE*0.2?'\u2265+20%':c.gap>=c.pBE*0.1?'\u2265+10%':c.gap>=0?'\u2265BE':'BAJO BE';
+    return[c.l,c.p,c.pv.toFixed(2),c.ebitda.toFixed(2),c.pBE.toFixed(2),c.p10.toFixed(2),c.e10.toFixed(2),c.p20.toFixed(2),c.e20.toFixed(2),(c.gap>=0?'+':'')+c.gap.toFixed(2),status];
+  });
+  doc.autoTable({startY:30,head:[['L\u00ednea','Producto','P.Actual','EBITDA Act','Breakeven','P.+10%','EBITDA+10%','P.+20%','EBITDA+20%','Gap vs BE','Status']],body:tBody,theme:'grid',
+    styles:{fontSize:7,cellPadding:1.5,font:'helvetica'},headStyles:{fillColor:[26,34,53],textColor:[79,140,255],fontStyle:'bold',fontSize:7},
+    columnStyles:{0:{cellWidth:22},1:{cellWidth:45},2:{halign:'right',cellWidth:16},3:{halign:'right',cellWidth:18},4:{halign:'right',cellWidth:18,fontStyle:'bold',textColor:[255,184,77]},5:{halign:'right',cellWidth:16,textColor:[79,140,255]},6:{halign:'right',cellWidth:18,textColor:[79,140,255]},7:{halign:'right',cellWidth:16,textColor:[0,212,170]},8:{halign:'right',cellWidth:18,textColor:[0,212,170]},9:{halign:'right',cellWidth:18},10:{cellWidth:16,halign:'center'}},
+    didParseCell:function(data){if(data.section==='body'){if(data.column.index===3){data.cell.styles.textColor=parseFloat(data.cell.raw)>=0?[0,212,170]:[255,77,106];}if(data.column.index===9){data.cell.styles.textColor=parseFloat(data.cell.raw)>=0?[0,212,170]:[255,77,106];}if(data.column.index===10){var v=data.cell.raw;if(v==='BAJO BE'){data.cell.styles.textColor=[255,77,106];data.cell.styles.fontStyle='bold';}else if(v==='\u2265BE'){data.cell.styles.textColor=[255,184,77];}else{data.cell.styles.textColor=[0,212,170];}}}},
+    alternateRowStyles:{fillColor:[245,247,250]},margin:{left:10,right:10}});
+  var pageCount=doc.internal.getNumberOfPages();for(var p=1;p<=pageCount;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(150);doc.text('RECSA \u2014 Pricing Estrat\u00e9gico \u00b7 '+new Date().toLocaleString('es-AR')+' \u00b7 P\u00e1gina '+p+'/'+pageCount,pageW/2,doc.internal.pageSize.getHeight()-5,{align:'center'});}
+  doc.save('RECSA_Pricing_Estrategico_'+new Date().toISOString().slice(0,10)+'.pdf');
 }
 
 // ===== INIT =====
