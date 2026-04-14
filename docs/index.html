@@ -336,8 +336,8 @@ function renderInvTbl(){
   var h='<table><thead><tr><th>Línea</th><th>Producto</th><th>Origen</th><th style="text-align:right">Vol</th><th>Lead Time</th><th>Stock Seg</th><th>Std</th><th style="text-align:right">Stock kg</th><th style="text-align:right">MP</th><th style="text-align:right">Stock USD</th><th style="text-align:right">CF/kg</th><th>%MP</th><th style="text-align:right">CF Anual</th></tr></thead><tbody>';
   for(var i=0;i<P.length;i++){var s=P[i],c=calcInv(s);var cc=c.cfs>1?"var(--rd)":c.cfs>0.5?"var(--or)":"var(--gn)";
   h+='<tr><td style="font-size:9px;color:var(--t2)">'+s.l+'</td><td style="font-weight:500;font-size:11px">'+s.p+'</td><td style="font-size:9px;color:var(--t2)">'+(s.o||'')+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(s.v)+'</td>';
-  h+='<td><input type="range" min="0" max="120" value="'+s.lt+'" oninput="uiInv('+i+','lt',this.value)" style="width:50px"><span class="pv">'+s.lt+'d</span></td>';
-  h+='<td><input type="range" min="0" max="90" value="'+s.ss+'" oninput="uiInv('+i+','ss',this.value)" style="width:50px"><span class="pv">'+s.ss+'d</span></td>';
+  h+='<td><input type="range" min="0" max="120" value="'+s.lt+'" oninput="uiInv('+i+',\x27lt\x27,this.value)" style="width:50px"><span class="pv">'+s.lt+'d</span></td>';
+  h+='<td><input type="range" min="0" max="90" value="'+s.ss+'" oninput="uiInv('+i+',\x27ss\x27,this.value)" style="width:50px"><span class="pv">'+s.ss+'d</span></td>';
   h+='<td class="mono" style="text-align:center;font-size:10px">'+c.sd+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(c.sk)+'</td><td class="mono" style="text-align:right;font-size:10px">'+fd(s.mp)+'</td><td class="mono warn" style="text-align:right;font-size:10px">'+fmt(c.su)+'</td><td class="mono" style="text-align:right;color:'+cc+';font-size:10px">'+fd(c.cfs)+'</td><td class="mono" style="color:'+cc+';font-size:10px">'+(c.cfp*100).toFixed(1)+'%</td><td class="mono neg" style="text-align:right;font-size:10px">'+fmt(c.cfa)+'</td></tr>';}
   h+='</tbody></table>';document.getElementById("inv-tbl").innerHTML=h;
 }
@@ -347,7 +347,7 @@ function uiInv(i,f,val){P[i][f]=parseInt(val);renderInventario();}
 function renderGastos(){
   if(G.length===0){
     var h='<div style="text-align:center;padding:80px 40px"><h2 style="color:var(--or);margin-bottom:16px">💼 Asignación de Gastos Operativos</h2><p style="color:var(--t2);margin-bottom:24px">Cargue el archivo Excel de Gastos Operativos (INPUT_3_Gastos_Operativos.xlsx)</p>';
-    h+='<label class="btn-load" style="padding:16px 32px;font-size:14px" onclick="document.getElementById('gasFile').click()">📂 Cargar Excel de Gastos</label>';
+    h+='<label class="btn-load" style="padding:16px 32px;font-size:14px" onclick="document.getElementById(\x27gasFile\x27).click()">📂 Cargar Excel de Gastos</label>';
     h+='<input type="file" id="gasFile" accept=".xlsx,.xls" style="display:none" onchange="loadGastos(this.files[0])">';
     h+='<div style="margin-top:24px;color:var(--t2);font-size:12px">Después de asignar, los valores de GF y MOD se actualizan automáticamente en el P&L</div></div>';
     document.getElementById("content").innerHTML=h;return;
@@ -383,10 +383,10 @@ function renderGTbl(){
   var h='<table><thead><tr><th>Emp</th><th>Concepto</th><th>Nombre</th><th style="text-align:right">Costo</th><th style="text-align:center;color:var(--ac)">RECSA</th><th style="text-align:center;color:var(--ac)">RECSA L+B</th><th style="text-align:center;color:var(--gn)">VIVALCE</th><th style="text-align:center;color:var(--gn)">VIVALCE L+B</th><th>Σ</th></tr></thead><tbody>';
   filtered.forEach(function(g){var i=g.i,a=GA[i];var sR1=a.cdir_r+a.fijo_r,sR2=a.logis_r+a.back_r,sV1=a.cdir_v+a.fijo_v,sV2=a.logis_v+a.back_v;var total=sR1+sR2+sV1+sV2;var ok=Math.abs(total-1)<=.05||g.costo_final===0;var tag=g.empresa==='RECSA'?'<span class="tag" style="background:rgba(79,140,255,.15);color:var(--ac)">R</span>':'<span class="tag" style="background:rgba(0,212,170,.15);color:var(--gn)">V</span>';
   h+='<tr><td>'+tag+'</td><td style="font-size:10px;color:var(--t2)">'+g.concepto+'</td><td style="font-weight:500;font-size:11px">'+g.nombre+'</td><td class="mono" style="text-align:right">'+fmtG(g.costo_final)+'</td>';
-  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sR1*100)+'" oninput="updG('+i+','r1',this.value)" style="width:50px"><span class="pv" id="gv'+i+'r1">'+Math.round(sR1*100)+'%</span></td>';
-  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sR2*100)+'" oninput="updG('+i+','r2',this.value)" style="width:50px"><span class="pv" id="gv'+i+'r2">'+Math.round(sR2*100)+'%</span></td>';
-  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sV1*100)+'" oninput="updG('+i+','v1',this.value)" style="width:50px"><span class="pv" id="gv'+i+'v1">'+Math.round(sV1*100)+'%</span></td>';
-  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sV2*100)+'" oninput="updG('+i+','v2',this.value)" style="width:50px"><span class="pv" id="gv'+i+'v2">'+Math.round(sV2*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sR1*100)+'" oninput="updG('+i+',\x27r1\x27,this.value)" style="width:50px"><span class="pv" id="gv'+i+'r1">'+Math.round(sR1*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sR2*100)+'" oninput="updG('+i+',\x27r2\x27,this.value)" style="width:50px"><span class="pv" id="gv'+i+'r2">'+Math.round(sR2*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sV1*100)+'" oninput="updG('+i+',\x27v1\x27,this.value)" style="width:50px"><span class="pv" id="gv'+i+'v1">'+Math.round(sV1*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sV2*100)+'" oninput="updG('+i+',\x27v2\x27,this.value)" style="width:50px"><span class="pv" id="gv'+i+'v2">'+Math.round(sV2*100)+'%</span></td>';
   h+='<td class="mono" style="color:'+(ok?'var(--gn)':'var(--rd)')+'">'+Math.round(total*100)+'%</td></tr>';});
   h+='</tbody></table>';document.getElementById("g-tbl").innerHTML=h;
 }
