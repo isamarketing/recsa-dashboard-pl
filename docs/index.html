@@ -3,36 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RECSA — Dashboard P&L por Producto</title>
+<title>RECSA — Dashboard Integral P&L</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0e1a;--s1:#111827;--s2:#1a2235;--bd:#2a3450;--tx:#e8ecf4;--t2:#8899b4;--ac:#4f8cff;--gn:#00d4aa;--rd:#ff4d6a;--or:#ffb84d;--pu:#a78bfa}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx)}
-.header{background:linear-gradient(135deg,#0d1117,#1a2235);border-bottom:1px solid var(--bd);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.header{background:linear-gradient(135deg,#0d1117,#1a2235);border-bottom:1px solid var(--bd);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .header h1{font-size:20px;font-weight:700}.header h1 span{color:var(--ac)}
-.header .sub{color:var(--t2);font-size:12px;margin-top:2px}
-.params-bar{display:flex;gap:20px;padding:10px 24px;background:var(--s2);border-bottom:1px solid var(--bd);align-items:center;flex-wrap:wrap}
-.params-bar label{font-size:11px;color:var(--t2)}
-.params-bar input[type=number]{width:80px;background:var(--s1);border:1px solid var(--bd);color:var(--ac);padding:4px 8px;border-radius:4px;font-family:'JetBrains Mono';font-size:11px;text-align:right}
-.params-bar .sep{width:1px;height:24px;background:var(--bd)}
-.tabs{display:flex;gap:0;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px}
-.tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.header .sub{color:var(--t2);font-size:11px;margin-top:2px}
+.params-bar{display:flex;gap:16px;padding:8px 24px;background:var(--s2);border-bottom:1px solid var(--bd);align-items:center;flex-wrap:wrap}
+.params-bar label{font-size:10px;color:var(--t2)}
+.params-bar input[type=number]{width:72px;background:var(--s1);border:1px solid var(--bd);color:var(--ac);padding:3px 6px;border-radius:4px;font-family:'JetBrains Mono';font-size:11px;text-align:right}
+.params-bar .sep{width:1px;height:20px;background:var(--bd)}
+.tabs{display:flex;gap:0;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
 .tab:hover{color:var(--tx)}.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
-.content{padding:24px;max-width:1500px;margin:0 auto}
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
-.kpi{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center}
+.tab.sec{color:var(--or)}.tab.sec.active{color:var(--or);border-bottom-color:var(--or)}
+.content{padding:20px;max-width:1500px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center}
 .kpi .lb{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px}
-.kpi .vl{font-family:'JetBrains Mono';font-size:20px;font-weight:600;margin-top:4px}
-.kpi .delta{font-size:11px;margin-top:3px}
+.kpi .vl{font-family:'JetBrains Mono';font-size:18px;font-weight:600;margin-top:4px}
+.kpi .delta{font-size:10px;margin-top:3px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px}
 .card h3{font-size:13px;color:var(--or);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
 .card.full{grid-column:1/-1}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:var(--s1);color:var(--t2);padding:8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:1}
-td{padding:5px 8px;border-bottom:1px solid rgba(42,52,80,.4)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:var(--s1);color:var(--t2);padding:7px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:1}
+td{padding:4px 8px;border-bottom:1px solid rgba(42,52,80,.4)}
 tr:hover{background:rgba(79,140,255,.03)}
 .mono{font-family:'JetBrains Mono';font-size:11px}
 .neg{color:var(--rd)}.pos{color:var(--gn)}.warn{color:var(--or)}
@@ -42,46 +43,79 @@ tr:hover{background:rgba(79,140,255,.03)}
 .tag-warn{background:rgba(255,184,77,.15);color:var(--or)}
 .sr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
 .sr .lb{color:var(--t2)}.sr .vl{font-family:'JetBrains Mono';font-weight:600}
-.btn-sm{padding:6px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);font-family:'DM Sans';font-size:12px;cursor:pointer;transition:all .2s}
+.btn-sm{padding:5px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);font-family:'DM Sans';font-size:11px;cursor:pointer}
 .btn-sm:hover{border-color:var(--ac);color:var(--ac)}
-.btn-load{padding:8px 16px;border-radius:6px;border:1px solid var(--ac);background:rgba(79,140,255,.1);color:var(--ac);font-family:'DM Sans';font-size:12px;font-weight:600;cursor:pointer}
+.btn-load{padding:5px 12px;border-radius:6px;border:1px solid var(--ac);background:rgba(79,140,255,.1);color:var(--ac);font-family:'DM Sans';font-size:11px;font-weight:600;cursor:pointer}
 .btn-load:hover{background:var(--ac);color:#fff}
-.hidden{display:none}
-@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}}
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filters select,.filters input{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:5px 10px;border-radius:6px;font-family:'DM Sans';font-size:11px}
+.filters input[type=text]{flex:1;min-width:120px}
+input[type=range]{width:60px;height:4px;-webkit-appearance:none;background:var(--bd);border-radius:2px;outline:none;cursor:pointer;vertical-align:middle}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--ac);border-radius:50%;cursor:pointer}
+.pv{font-family:'JetBrains Mono';font-size:10px;color:var(--ac);min-width:28px;display:inline-block;text-align:right}
+.sidebar{background:var(--s1);border-left:1px solid var(--bd);padding:16px;overflow-y:auto}
+.sidebar h3{font-size:13px;margin-bottom:12px;color:var(--or)}
+.main-2col{display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 200px)}
+.bar{height:7px;background:var(--bd);border-radius:4px;margin-top:6px;overflow:hidden;display:flex}
+.bar .s{height:100%;transition:width .3s}
+.s1{background:var(--ac)}.s2{background:var(--gn)}.s3{background:var(--or)}.s4{background:var(--pu)}
+.legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--t2)}
+.legend i{width:7px;height:7px;border-radius:2px;display:inline-block}
+.alert-box{background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.25);border-radius:8px;padding:10px;margin-top:10px}
+.alert-box h4{color:var(--rd);font-size:11px;margin-bottom:4px}
+.alert-box p{font-size:10px;color:var(--t2);padding:1px 0}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.main-2col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="header">
-  <div><h1><span>RECSA</span> — P&L por Producto</h1><div class="sub">Dashboard de Perdidas & Ganancias | Datos anualizados en USD · <span id="dataSource" style="color:var(--ac)">Datos base cargados</span></div></div>
+  <div><h1><span>RECSA</span> — Dashboard Integral P&L</h1><div class="sub">Pérdidas & Ganancias · Asignación de Gastos · Costo Inventario · <span id="dataSource" style="color:var(--ac)">Datos base</span></div></div>
   <div style="display:flex;gap:8px;align-items:center">
-    <label class="btn-load" onclick="document.getElementById('fileIn').click()">📂 Cargar Excel Master</label>
-    <input type="file" id="fileIn" accept=".xlsx,.xls" style="display:none" onchange="loadExcel(this.files[0])">
+    <label class="btn-load" onclick="document.getElementById('fileIn').click()">📂 Excel Master</label>
+    <input type="file" id="fileIn" accept=".xlsx,.xls" style="display:none" onchange="loadMaster(this.files[0])">
     <button class="btn-sm" onclick="exportCSV()">📥 CSV</button>
   </div>
 </div>
 <div class="params-bar">
-  <div><label>TC USD/ARS</label><br><input type="number" id="pTC" value="1490" onchange="recalc()"></div>
-  <div><label>Vol Mensual kg</label><br><input type="number" id="pVol" value="29379" onchange="recalc()"></div>
+  <div><label>TC USD/ARS</label><br><input type="number" id="pTC" value="1490" onchange="recalcAll()"></div>
+  <div><label>Vol Mensual kg</label><br><input type="number" id="pVol" value="29379" onchange="recalcAll()"></div>
   <div class="sep"></div>
-  <div><label>GF USD/kg</label><br><input type="number" id="pGF" value="1.1547" step="0.01" onchange="recalc()"></div>
-  <div><label>MOD+E+L USD/kg</label><br><input type="number" id="pMOD" value="0.5945" step="0.01" onchange="recalc()"></div>
-  <div><label>Flete USD/kg</label><br><input type="number" id="pFL" value="0.20" step="0.01" onchange="recalc()"></div>
+  <div><label>GF USD/kg</label><br><input type="number" id="pGF" value="1.1547" step="0.01" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Asig. Gastos</div></div>
+  <div><label>MOD+E+L USD/kg</label><br><input type="number" id="pMOD" value="0.5945" step="0.01" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Asig. Gastos</div></div>
+  <div><label>Flete USD/kg</label><br><input type="number" id="pFL" value="0.20" step="0.01" onchange="recalcAll()"></div>
   <div class="sep"></div>
-  <div><label>Imp Directos %</label><br><input type="number" id="pIMP" value="5.812" step="0.1" onchange="recalc()"></div>
-  <div><label>Financieros USD/kg</label><br><input type="number" id="pFIN" value="0.4768" step="0.01" onchange="recalc()"></div>
-  <div><label>TNA %</label><br><input type="number" id="pTNA" value="35" step="1" onchange="recalc()"></div>
+  <div><label>Imp %</label><br><input type="number" id="pIMP" value="5.812" step="0.1" onchange="recalcAll()"></div>
+  <div><label>Financieros</label><br><input type="number" id="pFIN" value="0.4768" step="0.01" onchange="recalcAll()"></div>
+  <div><label>TNA %</label><br><input type="number" id="pTNA" value="35" step="1" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Inventario</div></div>
 </div>
 <div class="tabs" id="tabs"></div>
 <div class="content" id="content"></div>
-
 <script>
-var P = [{"l":"RECSASEAL","p":"RECSASEAL EL 125 A/B conformado X 20/4","pv":7.42,"mp":2.943631,"r":0.98,"v":6048.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1484,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"RECSASEAL EL 125 A/B conformado X 200/20","pv":7.49,"mp":3.16,"r":0.98,"v":1447.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1498,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"RECSASEAL EL 145 A/B conformado x 20","pv":7.8,"mp":3.82,"r":0.98,"v":5856.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.156,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"RECSASEAL EL 145 A/B conformado 1000x200","pv":6.5,"mp":2.67,"r":0.98,"v":2661.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.13,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"RECSASEAL  EL220 100/10 cte A x 20","pv":4.92,"mp":2.46,"r":0.98,"v":5940.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0984,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"RECSASEAL  EL220 100/10 cte B x 20","pv":9.44,"mp":2.93,"r":0.98,"v":5940.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1888,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"RECSASEAL S164W","pv":14.24,"mp":6.63,"r":0.98,"v":1140.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.2848,"ifin":0.476799,"cfi":0},{"l":"RECSASEAL","p":"CATALIZADOR 3320","pv":21.72,"mp":3.09,"r":0.986,"v":88.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.4344,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 172 X 20","pv":5.5,"mp":3.0,"r":0.986,"v":400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.11,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 172 X 200","pv":6.189,"mp":3.11,"r":0.986,"v":1800.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1238,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 178 X 20","pv":5.2,"mp":6.89,"r":0.986,"v":2480.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.104,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R75D60 x 20","pv":13.46,"mp":3.12,"r":0.986,"v":80.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.2692,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 190","pv":6.49,"mp":3.19,"r":0.986,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1298,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R2140 x 20","pv":6.2,"mp":3.17,"r":0.986,"v":860.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.124,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 250","pv":7.56,"mp":3.19,"r":0.986,"v":180.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1512,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 360","pv":6.93,"mp":3.19,"r":0.986,"v":40.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1386,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R 280","pv":8.6,"mp":8.45,"r":0.986,"v":280.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.172,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R8060","pv":13.0,"mp":8.0,"r":0.986,"v":40.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.26,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R9260","pv":13.0,"mp":7.99,"r":0.986,"v":160.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.26,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R9560","pv":13.0,"mp":7.87,"r":0.986,"v":480.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.26,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"R491","pv":16.34,"mp":2.55,"r":0.986,"v":400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.3268,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"FLEX 85 ROJO","pv":9.19,"mp":3.49,"r":0.986,"v":980.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1838,"ifin":0.476799,"cfi":0},{"l":"RECSABOND UVG","p":"UVG300 A","pv":13.96,"mp":3.42,"r":0.98,"v":1040.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.2792,"ifin":0.476799,"cfi":0},{"l":"RECSABOND UVG","p":"UVG300 B","pv":13.96,"mp":2.25,"r":0.98,"v":832.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.109,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"AG10 X 200","pv":4.66,"mp":2.44,"r":0.98,"v":2800.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0932,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"AG30 X 200","pv":4.15,"mp":2.78,"r":0.986,"v":12820.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.082,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"AG50 formula con ppg1000 X 200","pv":4.41,"mp":2.74,"r":0.98,"v":49800.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0882,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"AG50 formula con ppg3000 X 200","pv":4.41,"mp":3.25,"r":0.98,"v":49800.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0882,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"AG50 formula shiso (solo reetiquetado)","pv":4.1,"mp":2.44,"r":1.0,"v":79200.0,"mod":0.594495,"imp":0.07,"fl":0.1,"gf":1.154736,"am":0.082,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"AG50 - 30 BONGO","pv":3.9,"mp":2.93,"r":0.98,"v":30000.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.078,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"HP X 20","pv":7.73,"mp":2.99,"r":0.98,"v":3700.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1546,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"HP X 200","pv":8.05,"mp":2.85,"r":0.98,"v":3700.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.161,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RF7  x 10","pv":4.91,"mp":2.71,"r":0.986,"v":11710.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0982,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RF7 alt2 x 1","pv":4.91,"mp":2.88,"r":0.986,"v":300.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0982,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RF7 alt2 x 10","pv":4.91,"mp":2.72,"r":0.986,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0982,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RF7 alt2 x 15","pv":4.91,"mp":2.54,"r":0.986,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0982,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RF7 alt2 x 200","pv":4.91,"mp":2.62,"r":0.986,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0982,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML723 20","pv":5.0,"mp":3.03,"r":0.98,"v":860.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML723 200","pv":5.59,"mp":2.94,"r":0.98,"v":400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1118,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML 495 20","pv":6.99,"mp":2.35,"r":0.98,"v":600.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1398,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML 495 200","pv":6.99,"mp":2.44,"r":0.98,"v":400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1398,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML 810 x 20","pv":4.74,"mp":0.0,"r":0.986,"v":200.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0948,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML 810 x 200","pv":3.98,"mp":0.0,"r":0.986,"v":2400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0796,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML 630 x 20","pv":0.0,"mp":15.95,"r":0.98,"v":1.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0,"ifin":0.476799,"cfi":0},{"l":"RECSABOND ML","p":"ML630 x 200","pv":0.0,"mp":6.89,"r":0.98,"v":1.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0,"ifin":0.476799,"cfi":0},{"l":"REVENTA","p":"E300","pv":23.54,"mp":3.15,"r":1.0,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.4708,"ifin":0.476799,"cfi":0},{"l":"REVENTA","p":"MOCA","pv":9.85,"mp":3.33,"r":1.0,"v":400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.197,"ifin":0.476799,"cfi":0},{"l":"RECSACOAT","p":"RC 51 A A/B","pv":8.05,"mp":6.35,"r":0.98,"v":400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.161,"ifin":0.476799,"cfi":0},{"l":"RECSACOAT","p":"WRC GRIS ULTIMA MOD 0623","pv":7.78,"mp":54.0,"r":0.98,"v":2400.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1556,"ifin":0.476799,"cfi":0},{"l":"RECSABOND UVG","p":"Catalizador UVG 15","pv":20.72,"mp":1.85,"r":0.98,"v":50.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.4144,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"Desmoldante 2035","pv":120.0,"mp":1.85,"r":0.98,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":2.4,"ifin":0.476799,"cfi":0},{"l":"REVENTA","p":"Diluyente DCM 20","pv":3.01,"mp":2.85,"r":0.99,"v":100.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0602,"ifin":0.476799,"cfi":0},{"l":"REVENTA","p":"Diluyente DCM 200","pv":3.5,"mp":5.22,"r":0.99,"v":200.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.07,"ifin":0.476799,"cfi":0},{"l":"MATERIA PRIMA","p":"MDI Polimerico","pv":4.2,"mp":8.52,"r":0.98,"v":200.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.084,"ifin":0.476799,"cfi":0},{"l":"MATERIA PRIMA","p":"Pasta Pigmentada Negra","pv":10.3,"mp":2.27,"r":1.0,"v":10.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.206,"ifin":0.476799,"cfi":0},{"l":"MATERIA PRIMA","p":"Pasta Pigmentada Roja","pv":25.0,"mp":0.0,"r":1.0,"v":10.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.5,"ifin":0.476799,"cfi":0},{"l":"REVENTA","p":"Plastificante D","pv":5.33,"mp":2.99,"r":0.98,"v":10.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1066,"ifin":0.476799,"cfi":0},{"l":"FAZON","p":"QX50I - QUIMECO","pv":0.79,"mp":3.06,"r":0.98,"v":23173.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.0158,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RECSABOND LN 40 AV","pv":6.56,"mp":5.9,"r":0.98,"v":300.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1312,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RECSABOND Primer","pv":6.24,"mp":9.45,"r":0.986,"v":3840.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1248,"ifin":0.476799,"cfi":0},{"l":"REVENTA","p":"Recsacoat TX","pv":9.89,"mp":16.57,"r":1.0,"v":500.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.1978,"ifin":0.476799,"cfi":0},{"l":"RECSABOND UVG","p":"RECSADIL UVG 90","pv":22.97,"mp":2.57,"r":0.98,"v":20.0,"mod":0.594495,"imp":0.07,"fl":0.2,"gf":1.154736,"am":0.4594,"ifin":0.476799,"cfi":0},{"l":"RECSAPREN","p":"RETIFLEX","pv":38.13,"mp":0,"r":0.98,"v":104.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.7626,"ifin":0.476799,"cfi":0},{"l":"RECSABOND","p":"RECSABOND SG114","pv":3.89,"mp":0,"r":0.98,"v":3000.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0778,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"AMARILLO X 25","pv":2.21,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0442,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"VIOLETA X 25","pv":1.81,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0362,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"GRIS X 25","pv":1.44,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0288,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"ROJO CLARO X 25","pv":1.71,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0342,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"ROJO X 25","pv":1.68,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0336,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"ROJO OXIDO X 25","pv":1.41,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0282,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"ROSA X 25","pv":1.67,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0334,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"VERDE X 25","pv":1.38,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0276,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"VERDE CLARO X 25","pv":1.46,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0292,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"AZUL X 25","pv":1.35,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.027,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"CELESTE X 25","pv":1.46,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0292,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"NARANJA X 25","pv":1.63,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0326,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"NARANJA CLARO X 25","pv":1.49,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.0298,"ifin":0.476799,"cfi":0},{"l":"RECSACROM","p":"GRIS CLARO X 25","pv":1.35,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0.027,"ifin":0.476799,"cfi":0},{"l":"","p":"78","pv":0,"mp":0,"r":1,"v":331581.0,"mod":0.594495,"imp":0,"fl":0.2,"gf":1.154736,"am":0,"ifin":0.476799,"cfi":0}];
+var P = [{"l":"RECSASEAL","p":"RECSASEAL EL 125 A/B conformado X 20/4","pv":7.42,"mp":2.943631,"r":0.98,"v":6048.0,"mod":0.594495,"am":0.1484,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"RECSASEAL EL 125 A/B conformado X 200/20","pv":7.49,"mp":3.16,"r":0.98,"v":1447.0,"mod":0.594495,"am":0.1498,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"RECSASEAL EL 145 A/B conformado x 20","pv":7.8,"mp":3.82,"r":0.98,"v":5856.0,"mod":0.594495,"am":0.156,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"RECSASEAL EL 145 A/B conformado 1000x200","pv":6.5,"mp":2.67,"r":0.98,"v":2661.0,"mod":0.594495,"am":0.13,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"RECSASEAL  EL220 100/10 cte A x 20","pv":4.92,"mp":2.46,"r":0.98,"v":5940.0,"mod":0.594495,"am":0.0984,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"RECSASEAL  EL220 100/10 cte B x 20","pv":9.44,"mp":2.93,"r":0.98,"v":5940.0,"mod":0.594495,"am":0.1888,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"RECSASEAL S164W","pv":14.24,"mp":6.63,"r":0.98,"v":1140.0,"mod":0.594495,"am":0.2848,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSASEAL","p":"CATALIZADOR 3320","pv":21.72,"mp":3.09,"r":0.986,"v":88.0,"mod":0.594495,"am":0.4344,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 172 X 20","pv":5.5,"mp":3.0,"r":0.986,"v":400.0,"mod":0.594495,"am":0.11,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 172 X 200","pv":6.189,"mp":3.11,"r":0.986,"v":1800.0,"mod":0.594495,"am":0.1238,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 178 X 20","pv":5.2,"mp":6.89,"r":0.986,"v":2480.0,"mod":0.594495,"am":0.104,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R75D60 x 20","pv":13.46,"mp":3.12,"r":0.986,"v":80.0,"mod":0.594495,"am":0.2692,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 190","pv":6.49,"mp":3.19,"r":0.986,"v":100.0,"mod":0.594495,"am":0.1298,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R2140 x 20","pv":6.2,"mp":3.17,"r":0.986,"v":860.0,"mod":0.594495,"am":0.124,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 250","pv":7.56,"mp":3.19,"r":0.986,"v":180.0,"mod":0.594495,"am":0.1512,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 360","pv":6.93,"mp":3.19,"r":0.986,"v":40.0,"mod":0.594495,"am":0.1386,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R 280","pv":8.6,"mp":8.45,"r":0.986,"v":280.0,"mod":0.594495,"am":0.172,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R8060","pv":13.0,"mp":8.0,"r":0.986,"v":40.0,"mod":0.594495,"am":0.26,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R9260","pv":13.0,"mp":7.99,"r":0.986,"v":160.0,"mod":0.594495,"am":0.26,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R9560","pv":13.0,"mp":7.87,"r":0.986,"v":480.0,"mod":0.594495,"am":0.26,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"R491","pv":16.34,"mp":2.55,"r":0.986,"v":400.0,"mod":0.594495,"am":0.3268,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSAPREN","p":"FLEX 85 ROJO","pv":9.19,"mp":3.49,"r":0.986,"v":980.0,"mod":0.594495,"am":0.1838,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSABOND UVG","p":"UVG300 A","pv":13.96,"mp":3.42,"r":0.98,"v":1040.0,"mod":0.594495,"am":0.2792,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND UVG","p":"UVG300 B","pv":13.96,"mp":2.25,"r":0.98,"v":832.0,"mod":0.594495,"am":0.109,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"AG10 X 200","pv":4.66,"mp":2.44,"r":0.98,"v":2800.0,"mod":0.594495,"am":0.0932,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"AG30 X 200","pv":4.15,"mp":2.78,"r":0.986,"v":12820.0,"mod":0.594495,"am":0.082,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"AG50 formula con ppg1000 X 200","pv":4.41,"mp":2.74,"r":0.98,"v":49800.0,"mod":0.594495,"am":0.0882,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"AG50 formula con ppg3000 X 200","pv":4.41,"mp":3.25,"r":0.98,"v":49800.0,"mod":0.594495,"am":0.0882,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"AG50 formula shiso (solo reetiquetado)","pv":4.1,"mp":2.44,"r":1.0,"v":79200.0,"mod":0.594495,"am":0.082,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"AG50 - 30 BONGO","pv":3.9,"mp":2.93,"r":0.98,"v":30000.0,"mod":0.594495,"am":0.078,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"HP X 20","pv":7.73,"mp":2.99,"r":0.98,"v":3700.0,"mod":0.594495,"am":0.1546,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"HP X 200","pv":8.05,"mp":2.85,"r":0.98,"v":3700.0,"mod":0.594495,"am":0.161,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"RF7  x 10","pv":4.91,"mp":2.71,"r":0.986,"v":11710.0,"mod":0.594495,"am":0.0982,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"RF7 alt2 x 1","pv":4.91,"mp":2.88,"r":0.986,"v":300.0,"mod":0.594495,"am":0.0982,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"RF7 alt2 x 10","pv":4.91,"mp":2.72,"r":0.986,"v":100.0,"mod":0.594495,"am":0.0982,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"RF7 alt2 x 15","pv":4.91,"mp":2.54,"r":0.986,"v":100.0,"mod":0.594495,"am":0.0982,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"RF7 alt2 x 200","pv":4.91,"mp":2.62,"r":0.986,"v":100.0,"mod":0.594495,"am":0.0982,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML723 20","pv":5.0,"mp":3.03,"r":0.98,"v":860.0,"mod":0.594495,"am":0.1,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML723 200","pv":5.59,"mp":2.94,"r":0.98,"v":400.0,"mod":0.594495,"am":0.1118,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML 495 20","pv":6.99,"mp":2.35,"r":0.98,"v":600.0,"mod":0.594495,"am":0.1398,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML 495 200","pv":6.99,"mp":2.44,"r":0.98,"v":400.0,"mod":0.594495,"am":0.1398,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML 810 x 20","pv":4.74,"mp":0.0,"r":0.986,"v":200.0,"mod":0.594495,"am":0.0948,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML 810 x 200","pv":3.98,"mp":0.0,"r":0.986,"v":2400.0,"mod":0.594495,"am":0.0796,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML 630 x 20","pv":0.0,"mp":15.95,"r":0.98,"v":1.0,"mod":0.594495,"am":0.0,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND ML","p":"ML630 x 200","pv":0.0,"mp":6.89,"r":0.98,"v":1.0,"mod":0.594495,"am":0.0,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"REVENTA","p":"E300","pv":23.54,"mp":3.15,"r":1.0,"v":100.0,"mod":0.594495,"am":0.4708,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"REVENTA","p":"MOCA","pv":9.85,"mp":3.33,"r":1.0,"v":400.0,"mod":0.594495,"am":0.197,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"RECSACOAT","p":"RC 51 A A/B","pv":8.05,"mp":6.35,"r":0.98,"v":400.0,"mod":0.594495,"am":0.161,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSACOAT","p":"WRC GRIS ULTIMA MOD 0623","pv":7.78,"mp":54.0,"r":0.98,"v":2400.0,"mod":0.594495,"am":0.1556,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSABOND UVG","p":"Catalizador UVG 15","pv":20.72,"mp":1.85,"r":0.98,"v":50.0,"mod":0.594495,"am":0.4144,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSAPREN","p":"Desmoldante 2035","pv":120.0,"mp":1.85,"r":0.98,"v":100.0,"mod":0.594495,"am":2.4,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"REVENTA","p":"Diluyente DCM 20","pv":3.01,"mp":2.85,"r":0.99,"v":100.0,"mod":0.594495,"am":0.0602,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"REVENTA","p":"Diluyente DCM 200","pv":3.5,"mp":5.22,"r":0.99,"v":200.0,"mod":0.594495,"am":0.07,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"MATERIA PRIMA","p":"MDI Polimerico","pv":4.2,"mp":8.52,"r":0.98,"v":200.0,"mod":0.594495,"am":0.084,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"MATERIA PRIMA","p":"Pasta Pigmentada Negra","pv":10.3,"mp":2.27,"r":1.0,"v":10.0,"mod":0.594495,"am":0.206,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"MATERIA PRIMA","p":"Pasta Pigmentada Roja","pv":25.0,"mp":0.0,"r":1.0,"v":10.0,"mod":0.594495,"am":0.5,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"REVENTA","p":"Plastificante D","pv":5.33,"mp":2.99,"r":0.98,"v":10.0,"mod":0.594495,"am":0.1066,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"FAZON","p":"QX50I - QUIMECO","pv":0.79,"mp":3.06,"r":0.98,"v":23173.0,"mod":0.594495,"am":0.0158,"ifin":0.476799,"o":"LOCAL","lt":25,"ss":15},{"l":"RECSABOND","p":"RECSABOND LN 40 AV","pv":6.56,"mp":5.9,"r":0.98,"v":300.0,"mod":0.594495,"am":0.1312,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSABOND","p":"RECSABOND Primer","pv":6.24,"mp":9.45,"r":0.986,"v":3840.0,"mod":0.594495,"am":0.1248,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"REVENTA","p":"Recsacoat TX","pv":9.89,"mp":16.57,"r":1.0,"v":500.0,"mod":0.594495,"am":0.1978,"ifin":0.476799,"o":"IMPORT","lt":50,"ss":30},{"l":"RECSABOND UVG","p":"RECSADIL UVG 90","pv":22.97,"mp":2.57,"r":0.98,"v":20.0,"mod":0.594495,"am":0.4594,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSAPREN","p":"RETIFLEX","pv":38.13,"mp":0,"r":0.98,"v":104.0,"mod":0.594495,"am":0.7626,"ifin":0.476799,"o":"BR/LOCAL","lt":30,"ss":15},{"l":"RECSABOND","p":"RECSABOND SG114","pv":3.89,"mp":0,"r":0.98,"v":3000.0,"mod":0.594495,"am":0.0778,"ifin":0.476799,"o":"BR/LOCAL","lt":35,"ss":20},{"l":"RECSACROM","p":"AMARILLO X 25","pv":2.21,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0442,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"VIOLETA X 25","pv":1.81,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0362,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"GRIS X 25","pv":1.44,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0288,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"ROJO CLARO X 25","pv":1.71,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0342,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"ROJO X 25","pv":1.68,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0336,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"ROJO OXIDO X 25","pv":1.41,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0282,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"ROSA X 25","pv":1.67,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0334,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"VERDE X 25","pv":1.38,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0276,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"VERDE CLARO X 25","pv":1.46,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0292,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"AZUL X 25","pv":1.35,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.027,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"CELESTE X 25","pv":1.46,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0292,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"NARANJA X 25","pv":1.63,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0326,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"NARANJA CLARO X 25","pv":1.49,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.0298,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"RECSACROM","p":"GRIS CLARO X 25","pv":1.35,"mp":0,"r":0.98,"v":600.0,"mod":0.594495,"am":0.027,"ifin":0.476799,"o":"LOCAL","lt":15,"ss":10},{"l":"","p":"78","pv":0,"mp":0,"r":1,"v":331581.0,"mod":0.594495,"am":0,"ifin":0.476799,"o":"LOCAL","lt":25,"ss":15}];
+
+// ===== Gastos Operativos data (loaded from Excel) =====
+var G=[], GA={};
+var G_TC=1490, G_VOL_R=29378.5, G_VOL_V=17500;
+
+// ===== TAB SYSTEM =====
 var currentTab="resumen";
-var tabNames=[{id:"resumen",label:"Resumen Ejecutivo"},{id:"lineas",label:"Por Línea"},{id:"productos",label:"Por Producto"},{id:"alertas",label:"Alertas"},{id:"pricing",label:"Pricing Estratégico"},{id:"simulador",label:"Simulador"},{id:"unitario",label:"Vista Unitaria"}];
+var tabNames=[
+  {id:"resumen",label:"Resumen Ejecutivo",sec:false},
+  {id:"lineas",label:"Por Línea",sec:false},
+  {id:"productos",label:"Por Producto",sec:false},
+  {id:"pricing",label:"Pricing Estratégico",sec:false},
+  {id:"alertas",label:"Alertas",sec:false},
+  {id:"simulador",label:"Simulador",sec:false},
+  {id:"unitario",label:"Vista Unitaria",sec:false},
+  {id:"inventario",label:"📦 Inventario",sec:true},
+  {id:"gastos",label:"💼 Asig. Gastos",sec:true}
+];
 
 function gp(id){return parseFloat(document.getElementById(id).value)||0}
 
-function calc(p){
+// ===== P&L CALCULATIONS =====
+function calcPL(p){
   var pv=p.pv, mp=p.mp, r=p.r||1;
   var mod=gp('pMOD'), fl=gp('pFL'), gf=gp('pGF');
   var impPct=gp('pIMP')/100;
@@ -92,51 +126,56 @@ function calc(p){
   var ebitdaPct=pv>0?ebitda/pv:0;
   var am=p.am||0;
   var ebit=ebitda-am;
+  // CF inventario computed from inventory tab
+  var tna=gp('pTNA')/100;
+  var sd=p.lt+p.ss;
+  var sk=p.v>0?(p.v/365)*sd:0;
+  var su=sk*mp;
+  var cfi=p.v>0?(su*tna)/(p.v*365)*sd:0;
   var ifin=gp('pFIN');
-  var cfi=p.cfi||0;
   var rai=ebit-ifin-cfi;
   var rev=pv*p.v;
   var ebitdaAbs=ebitda*p.v;
   var cmgAbs=cmg*p.v;
-  return {pv:pv,mp:mp,r:r,mod:mod,imp:imp,fl:fl,cmg:cmg,cmgPct:cmgPct,gf:gf,ebitda:ebitda,ebitdaPct:ebitdaPct,am:am,ebit:ebit,ifin:ifin,cfi:cfi,rai:rai,rev:rev,ebitdaAbs:ebitdaAbs,cmgAbs:cmgAbs,v:p.v,l:p.l,p:p.p};
+  return {pv:pv,mp:mp,r:r,mod:mod,imp:imp,fl:fl,cmg:cmg,cmgPct:cmgPct,gf:gf,ebitda:ebitda,ebitdaPct:ebitdaPct,am:am,ebit:ebit,ifin:ifin,cfi:cfi,rai:rai,rev:rev,ebitdaAbs:ebitdaAbs,cmgAbs:cmgAbs,v:p.v,l:p.l,p:p.p,o:p.o,lt:p.lt,ss:p.ss};
 }
+function calcAllPL(){var r=[];for(var i=0;i<P.length;i++)r.push(calcPL(P[i]));return r;}
+function totalsPL(items){var rev=0,ebitda=0,cmg=0,vol=0,np=0,nn=0;for(var i=0;i<items.length;i++){var c=items[i];rev+=c.rev;ebitda+=c.ebitdaAbs;cmg+=c.cmgAbs;vol+=c.v;if(c.ebitda>0)np++;else nn++;}return{rev:rev,ebitda:ebitda,cmg:cmg,vol:vol,margin:rev>0?(ebitda/rev*100).toFixed(1):'0',cmgMargin:rev>0?(cmg/rev*100).toFixed(1):'0',n:items.length,np:np,nn:nn};}
 
-function calcAll(){
-  var r=[];for(var i=0;i<P.length;i++)r.push(calc(P[i]));return r;
-}
-
-function totals(items){
-  var rev=0,ebitda=0,cmg=0,vol=0,np=0,nn=0;
-  for(var i=0;i<items.length;i++){var c=items[i];rev+=c.rev;ebitda+=c.ebitdaAbs;cmg+=c.cmgAbs;vol+=c.v;if(c.ebitda>0)np++;else nn++;}
-  return {rev:rev,ebitda:ebitda,cmg:cmg,vol:vol,margin:rev>0?(ebitda/rev*100).toFixed(1):'0',cmgMargin:rev>0?(cmg/rev*100).toFixed(1):'0',n:items.length,np:np,nn:nn};
+// ===== INVENTORY CALCULATIONS =====
+function calcInv(p){
+  var tna=gp('pTNA')/100;
+  var sd=p.lt+p.ss;
+  var sk=p.v>0?(p.v/365)*sd:0;
+  var su=sk*p.mp;
+  var cfd=p.v>0?(su*tna)/(p.v*365):0;
+  var cfs=cfd*sd;
+  var cfp=p.mp>0?cfs/p.mp:0;
+  var cfa=cfs*p.v;
+  return{sd:sd,sk:sk,su:su,cfd:cfd,cfs:cfs,cfp:cfp,cfa:cfa};
 }
 
 function fmt(n){return Math.abs(n).toLocaleString("es-AR",{maximumFractionDigits:0})}
 function fd(n){return n.toFixed(2)}
 function pct(n){return(n*100).toFixed(1)+"%"}
 
-function recalc(){renderContent()}
+function recalcAll(){renderContent();}
 
 function renderTabs(){
-  var h="";for(var i=0;i<tabNames.length;i++){var t=tabNames[i];h+='<div class="tab'+(currentTab===t.id?' active':'')+'" data-tab="'+t.id+'">'+t.label+'</div>';}
+  var h="";for(var i=0;i<tabNames.length;i++){var t=tabNames[i];var cls="tab"+(currentTab===t.id?" active":"")+(t.sec?" sec":"");h+='<div class="'+cls+'" data-tab="'+t.id+'">'+t.label+'</div>';}
   document.getElementById("tabs").innerHTML=h;
   var els=document.getElementById("tabs").getElementsByClassName("tab");
-  for(var j=0;j<els.length;j++)els[j].addEventListener("click",function(){currentTab=this.getAttribute("data-tab");renderTabs();renderContent()});
+  for(var j=0;j<els.length;j++)els[j].addEventListener("click",function(){currentTab=this.getAttribute("data-tab");renderTabs();renderContent();});
 }
 
 function renderContent(){
-  if(currentTab==="resumen")renderResumen();
-  else if(currentTab==="lineas")renderLineas();
-  else if(currentTab==="productos")renderProductos();
-  else if(currentTab==="alertas")renderAlertas();
-  else if(currentTab==="pricing")renderPricing();
-  else if(currentTab==="simulador")renderSimulador();
-  else if(currentTab==="unitario")renderUnitario();
+  var fn={resumen:renderResumen,lineas:renderLineas,productos:renderProductos,pricing:renderPricing,alertas:renderAlertas,simulador:renderSimulador,unitario:renderUnitario,inventario:renderInventario,gastos:renderGastos};
+  if(fn[currentTab])fn[currentTab]();
 }
 
+// ===== TAB: RESUMEN =====
 function renderResumen(){
-  var all=calcAll();var t=totals(all);
-  var gf=gp('pGF');
+  var all=calcAllPL();var t=totalsPL(all);var gf=gp('pGF');
   var h='<div class="kpis">';
   h+='<div class="kpi"><div class="lb">Revenue Anual</div><div class="vl">USD '+fmt(t.rev)+'</div><div class="delta">'+t.n+' productos</div></div>';
   h+='<div class="kpi"><div class="lb">CMG Anual</div><div class="vl" style="color:'+(t.cmg>=0?'var(--gn)':'var(--rd)')+'">USD '+fmt(t.cmg)+'</div><div class="delta">'+t.cmgMargin+'%</div></div>';
@@ -145,337 +184,259 @@ function renderResumen(){
   h+='<div class="kpi"><div class="lb">Gastos Fijos</div><div class="vl warn">USD '+fd(gf)+'/kg</div><div class="delta">'+t.np+' rent / '+t.nn+' pierde</div></div>';
   h+='<div class="kpi"><div class="lb">EBITDA/kg</div><div class="vl" style="color:'+(t.ebitda>=0?'var(--gn)':'var(--rd)')+'">USD '+fd(t.vol>0?t.ebitda/t.vol:0)+'</div></div></div>';
 
-  // Top winners
   var winners=all.filter(function(c){return c.ebitda>0&&c.v>0}).sort(function(a,b){return b.ebitdaAbs-a.ebitdaAbs}).slice(0,10);
   var losers=all.filter(function(c){return c.ebitda<0&&c.v>0}).sort(function(a,b){return a.ebitdaAbs-b.ebitdaAbs}).slice(0,10);
-
   h+='<div class="row"><div class="card"><h3>Top 10 Ganadores</h3><table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">EBITDA USD</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
   for(var i=0;i<winners.length;i++){var c=winners[i];h+='<tr><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono pos" style="text-align:right">'+fmt(c.ebitdaAbs)+'</td><td class="mono pos">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
   h+='</tbody></table></div>';
-
   h+='<div class="card"><h3>Top 10 con Pérdida</h3><table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Pérdida USD</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
   for(var i=0;i<losers.length;i++){var c=losers[i];h+='<tr><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
   h+='</tbody></table></div></div>';
 
-  // By line summary
-  var lines={};for(var i=0;i<all.length;i++){var c=all[i];var l=c.l||'OTROS';if(!lines[l])lines[l]={rev:0,ebitda:0,cmg:0,vol:0,n:0,np:0};lines[l].rev+=c.rev;lines[l].ebitda+=c.ebitdaAbs;lines[l].cmg+=c.cmgAbs;lines[l].vol+=c.v;lines[l].n++;if(c.ebitda>0)lines[l].np++;}
+  // By line
+  var lines={};for(var i=0;i<all.length;i++){var c=all[i];var l=c.l||'OTROS';if(!lines[l])lines[l]={rev:0,ebitda:0,cmg:0,vol:0,n:0};lines[l].rev+=c.rev;lines[l].ebitda+=c.ebitdaAbs;lines[l].cmg+=c.cmgAbs;lines[l].vol+=c.v;lines[l].n++;}
   var lk=Object.keys(lines).sort(function(a,b){return lines[b].rev-lines[a].rev});
   h+='<div class="card full"><h3>P&L por Línea</h3><table><thead><tr><th>Línea</th><th style="text-align:right">Revenue</th><th style="text-align:right">EBITDA</th><th>Margen</th><th>Vol</th><th>#</th><th>Status</th></tr></thead><tbody>';
   for(var i=0;i<lk.length;i++){var l=lk[i];var d=lines[l];var m=d.rev>0?(d.ebitda/d.rev*100).toFixed(1):'0';var color=parseFloat(m)>10?'var(--gn)':parseFloat(m)>0?'var(--or)':'var(--rd)';var tag=parseFloat(m)>10?'<span class="tag tag-ok">RENTABLE</span>':parseFloat(m)>0?'<span class="tag tag-warn">MARGINAL</span>':'<span class="tag tag-bad">PIERDE</span>';
   h+='<tr><td style="font-weight:600">'+l+'</td><td class="mono" style="text-align:right">'+fmt(d.rev)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+(d.ebitda<0?'('+fmt(d.ebitda)+')':fmt(d.ebitda))+'</td><td class="mono" style="color:'+color+'">'+m+'%</td><td class="mono">'+fmt(d.vol)+'</td><td class="mono">'+d.n+'</td><td>'+tag+'</td></tr>';}
-  h+='<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>TOTAL</td><td class="mono" style="text-align:right">'+fmt(t.rev)+'</td><td class="mono" style="text-align:right;color:'+(t.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+(t.ebitda<0?'('+fmt(t.ebitda)+')':fmt(t.ebitda))+'</td><td class="mono" style="color:'+(t.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+t.margin+'%</td><td class="mono">'+fmt(t.vol)+'</td><td class="mono">'+t.n+'</td><td></td></tr>';
   h+='</tbody></table></div>';
   document.getElementById("content").innerHTML=h;
 }
 
+// ===== TAB: LINEAS =====
 function renderLineas(){
-  var all=calcAll();
-  var lines={};for(var i=0;i<all.length;i++){var c=all[i];var l=c.l||'OTROS';if(!lines[l])lines[l]={rev:0,ebitda:0,cmg:0,vol:0,n:0,items:[]};lines[l].rev+=c.rev;lines[l].ebitda+=c.ebitdaAbs;lines[l].cmg+=c.cmgAbs;lines[l].vol+=c.v;lines[l].n++;lines[l].items.push(c);}
-  var t=totals(all);
+  var all=calcAllPL();var t=totalsPL(all);
+  var lines={};for(var i=0;i<all.length;i++){var c=all[i];var l=c.l||'OTROS';if(!lines[l])lines[l]={rev:0,ebitda:0,cmg:0,vol:0,n:0};lines[l].rev+=c.rev;lines[l].ebitda+=c.ebitdaAbs;lines[l].cmg+=c.cmgAbs;lines[l].vol+=c.v;lines[l].n++;}
   var lk=Object.keys(lines).sort(function(a,b){return lines[b].rev-lines[a].rev});
   var h='<div class="card full"><h3>Detalle por Línea de Producto</h3><table><thead><tr><th>Línea</th><th style="text-align:right">Revenue</th><th>% Rev</th><th style="text-align:right">CMG</th><th style="text-align:right">EBITDA</th><th>Margen</th><th>Vol</th><th>#</th><th>Status</th></tr></thead><tbody>';
   for(var i=0;i<lk.length;i++){var l=lk[i];var d=lines[l];var rp=t.rev>0?(d.rev/t.rev*100).toFixed(1):'0';var m=d.rev>0?(d.ebitda/d.rev*100).toFixed(1):'0';var color=parseFloat(m)>10?'var(--gn)':parseFloat(m)>0?'var(--or)':'var(--rd)';var tag=parseFloat(m)>10?'<span class="tag tag-ok">OK</span>':parseFloat(m)>0?'<span class="tag tag-warn">!!</span>':'<span class="tag tag-bad">X</span>';
   h+='<tr><td style="font-weight:600">'+l+'</td><td class="mono" style="text-align:right">'+fmt(d.rev)+'</td><td class="mono">'+rp+'%</td><td class="mono" style="text-align:right;color:'+color+'">'+fmt(d.cmg)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+(d.ebitda<0?'('+fmt(d.ebitda)+')':fmt(d.ebitda))+'</td><td class="mono" style="color:'+color+'">'+m+'%</td><td class="mono">'+fmt(d.vol)+'</td><td class="mono">'+d.n+'</td><td>'+tag+'</td></tr>';}
-  h+='<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>TOTAL</td><td class="mono" style="text-align:right">'+fmt(t.rev)+'</td><td class="mono">100%</td><td class="mono" style="text-align:right">'+fmt(t.cmg)+'</td><td class="mono neg" style="text-align:right">'+(t.ebitda<0?'('+fmt(t.ebitda)+')':fmt(t.ebitda))+'</td><td class="mono neg">'+t.margin+'%</td><td class="mono">'+fmt(t.vol)+'</td><td class="mono">'+t.n+'</td><td></td></tr>';
-  h+='</tbody></table></div>';
+  h+='<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>TOTAL</td><td class="mono" style="text-align:right">'+fmt(t.rev)+'</td><td class="mono">100%</td><td class="mono" style="text-align:right">'+fmt(t.cmg)+'</td><td class="mono" style="text-align:right;color:'+(t.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+(t.ebitda<0?'('+fmt(t.ebitda)+')':fmt(t.ebitda))+'</td><td class="mono">'+t.margin+'%</td><td class="mono">'+fmt(t.vol)+'</td><td class="mono">'+t.n+'</td><td></td></tr></tbody></table></div>';
   document.getElementById("content").innerHTML=h;
 }
 
+// ===== TAB: PRODUCTOS =====
 function renderProductos(){
-  var h='<div class="card full"><h3>P&L Detallado por Producto</h3><div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">';
   var lineSet={};for(var i=0;i<P.length;i++)lineSet[P[i].l]=1;var lks=Object.keys(lineSet).sort();
-  h+='<select id="sort-p" onchange="doFP()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="revenue">Por Revenue</option><option value="ebitda">Por EBITDA</option><option value="margin">Por Margen</option><option value="vol">Por Volumen</option></select>';
-  h+='<select id="filter-l" onchange="doFP()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todas las líneas</option>';
-  for(var i=0;i<lks.length;i++)h+='<option value="'+lks[i]+'">'+lks[i]+'</option>';
-  h+='</select><input id="search-p" placeholder="Buscar..." oninput="doFP()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px;flex:1;min-width:120px"></div>';
-  h+='<div id="prod-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
+  var h='<div class="card full"><h3>P&L Detallado por Producto</h3><div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">';
+  h+='<select id="sort-p" onchange="doFP()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="revenue">Por Revenue</option><option value="ebitda">Por EBITDA</option><option value="margin">Por Margen</option><option value="vol">Por Volumen</option></select>';
+  h+='<select id="filter-l" onchange="doFP()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option>';
+  for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
+  h+='</select><input id="search-p" placeholder="Buscar..." oninput="doFP()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1;min-width:120px"></div>';
+  h+='<div id="prod-tbl" style="max-height:calc(100vh - 320px);overflow-y:auto"></div></div>';
   document.getElementById("content").innerHTML=h;doFP();
 }
-
 function doFP(){
-  var all=calcAll();
-  var fl=document.getElementById("filter-l").value;
-  var fs=document.getElementById("search-p").value.toLowerCase();
-  var so=document.getElementById("sort-p").value;
+  var all=calcAllPL();var fl=document.getElementById("filter-l").value;var fs=document.getElementById("search-p").value.toLowerCase();var so=document.getElementById("sort-p").value;
   var items=all.filter(function(c){if(fl!=="ALL"&&c.l!==fl)return false;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)return false;return true;});
-  if(so==="revenue")items.sort(function(a,b){return b.rev-a.rev});
-  else if(so==="ebitda")items.sort(function(a,b){return b.ebitdaAbs-a.ebitdaAbs});
-  else if(so==="margin")items.sort(function(a,b){return b.ebitdaPct-a.ebitdaPct});
-  else items.sort(function(a,b){return b.v-a.v});
-
+  if(so==="revenue")items.sort(function(a,b){return b.rev-a.rev});else if(so==="ebitda")items.sort(function(a,b){return b.ebitdaAbs-a.ebitdaAbs});else if(so==="margin")items.sort(function(a,b){return b.ebitdaPct-a.ebitdaPct});else items.sort(function(a,b){return b.v-a.v});
   var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP/R</th><th style="text-align:right">CMG</th><th>CMG%</th><th style="text-align:right">EBITDA</th><th>EBITDA%</th><th style="text-align:right">Revenue</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
   for(var i=0;i<items.length;i++){var c=items[i];var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';var tag=c.ebitda>0?(c.ebitdaPct>0.1?'<span class="tag tag-ok">OK</span>':'<span class="tag tag-warn">!!</span>'):'<span class="tag tag-bad">X</span>';
   h+='<tr><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right">'+fd(c.mp/c.r)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.cmgPct)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td class="mono" style="text-align:right">'+fmt(c.rev)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
-  h+='</tbody></table>';
-  document.getElementById("prod-tbl").innerHTML=h;
+  h+='</tbody></table>';document.getElementById("prod-tbl").innerHTML=h;
 }
 
-function renderAlertas(){
-  var all=calcAll();
-  var costGt=[],negM=[],zeroV=[];
-  for(var i=0;i<all.length;i++){var c=all[i];if(c.mp/c.r>c.pv&&c.v>0)costGt.push(c);if(c.ebitda<0&&c.v>0)negM.push(c);if(c.v===0)zeroV.push(c);}
-  negM.sort(function(a,b){return a.ebitdaAbs-b.ebitdaAbs});
-  var totalLoss=0;for(var i=0;i<negM.length;i++)totalLoss+=negM[i].ebitdaAbs;
-
-  var h='<div class="kpis" style="grid-template-columns:repeat(3,1fr)">';
-  h+='<div class="kpi" style="border-color:var(--rd)"><div class="lb">Costo MP > Precio</div><div class="vl neg">'+costGt.length+'</div></div>';
-  h+='<div class="kpi" style="border-color:var(--or)"><div class="lb">EBITDA Negativo</div><div class="vl warn">'+negM.length+'</div></div>';
-  h+='<div class="kpi"><div class="lb">Sin Volumen</div><div class="vl">'+zeroV.length+'</div></div></div>';
-
-  if(costGt.length){
-    h+='<div class="card full"><h3>COSTO MP > PRECIO DE VENTA</h3><table><thead><tr><th>Producto</th><th>Línea</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo MP/R</th><th style="text-align:right">Diferencia</th><th>Vol</th></tr></thead><tbody>';
-    for(var i=0;i<costGt.length;i++){var c=costGt[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td style="color:var(--t2)">'+c.l+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp/c.r)+'</td><td class="mono neg" style="text-align:right">('+fd(c.mp/c.r-c.pv)+')</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
-    h+='</tbody></table></div>';
-  }
-
-  h+='<div class="card full"><h3>PRODUCTOS CON EBITDA NEGATIVO — Pérdida: USD '+fmt(totalLoss)+'</h3><table><thead><tr><th>Producto</th><th>Línea</th><th style="text-align:right">Pérdida/kg</th><th style="text-align:right">Pérdida Total</th><th>Margen</th><th>Vol</th><th>Acción</th></tr></thead><tbody>';
-  for(var i=0;i<negM.length;i++){var c=negM[i];var action=c.mp/c.r>c.pv?'Subir precio o discontinuar':c.ebitdaPct>-0.1?'Revisar pricing':'Evaluar discontinuación';
-  h+='<tr><td style="font-weight:500">'+c.p+'</td><td style="color:var(--t2)">'+c.l+'</td><td class="mono neg" style="text-align:right">'+fd(c.ebitda)+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td><td style="font-size:11px;color:var(--or)">'+action+'</td></tr>';}
-  h+='</tbody></table></div>';
-  document.getElementById("content").innerHTML=h;
-}
-
+// ===== TAB: PRICING ESTRATEGICO =====
 function renderPricing(){
-  var all=calcAll();
-  var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
   var lineSet={};for(var i=0;i<P.length;i++)lineSet[P[i].l]=1;var lks=Object.keys(lineSet).sort();
-
-  var h='<div class="card full"><h3>Pricing Estratégico — Breakeven, +10%, +20%</h3>';
-  h+='<p style="color:var(--t2);font-size:12px;margin-bottom:16px">Para cada producto: el precio mínimo (EBITDA=0), precio conservador (+10%) y precio target (+20%) con su EBITDA resultante</p>';
-  h+='<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">';
-  h+='<select id="pr-l" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todas las líneas</option>';
-  for(var i=0;i<lks.length;i++)h+='<option value="'+lks[i]+'">'+lks[i]+'</option>';
-  h+='</select>';
-  h+='<select id="pr-st" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todos</option><option value="BAJO">Precio actual < Breakeven</option><option value="OK">Precio actual ≥ Breakeven</option></select>';
-  h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px;flex:1;min-width:120px">';
-  h+='</div><div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
-
-  // Summary KPIs
-  var nBelow=0,nAbove=0,totalGap=0;
-  for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
-    var costBase=(c.mp/c.r)+mod+fl+gf;var pBE=costBase/(1-impPct);
-    if(c.pv<pBE){nBelow++;totalGap+=(pBE-c.pv)*c.v;}else nAbove++;}
-
-  var kh='<div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">';
-  kh+='<div class="kpi"><div class="lb">Por debajo de Breakeven</div><div class="vl neg">'+nBelow+'</div></div>';
-  kh+='<div class="kpi"><div class="lb">En o sobre Breakeven</div><div class="vl pos">'+nAbove+'</div></div>';
-  kh+='<div class="kpi"><div class="lb">Gap total anual USD</div><div class="vl neg">'+fmt(totalGap)+'</div><div class="delta" style="color:var(--t2)">Revenue necesario para BE</div></div>';
-  kh+='<div class="kpi"><div class="lb">Fórmula Breakeven</div><div class="vl" style="font-size:12px;color:var(--t2)">(MP/R+MOD+FL+GF)/(1-Imp%)</div></div></div>';
-
+  var h='<div class="card full"><h3>Pricing Estratégico — Breakeven, +10%, +20%</h3><p style="color:var(--t2);font-size:11px;margin-bottom:12px">Precio mínimo (EBITDA=0), conservador (+10%) y target (+20%)</p>';
+  h+='<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap"><select id="pr-l" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option>';
+  for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
+  h+='</select><select id="pr-st" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todos</option><option value="BAJO">< Breakeven</option><option value="OK">≥ Breakeven</option></select>';
+  h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1"></div>';
+  h+='<div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
+  var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=((c.mp/c.r)+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
+  var kh='<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">';
+  kh+='<div class="kpi"><div class="lb">Bajo Breakeven</div><div class="vl neg">'+nB+'</div></div>';
+  kh+='<div class="kpi"><div class="lb">Sobre Breakeven</div><div class="vl pos">'+nA+'</div></div>';
+  kh+='<div class="kpi"><div class="lb">Gap anual USD</div><div class="vl neg">'+fmt(tG)+'</div></div></div>';
   document.getElementById("content").innerHTML=kh+h;doFPR();
 }
-
 function doFPR(){
-  var all=calcAll();
-  var fl_v=document.getElementById("pr-l").value;
-  var st=document.getElementById("pr-st").value;
-  var fs=document.getElementById("pr-s").value.toLowerCase();
+  var all=calcAllPL();var fl_v=document.getElementById("pr-l").value;var st=document.getElementById("pr-st").value;var fs=document.getElementById("pr-s").value.toLowerCase();
   var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
-
-  var items=[];
-  for(var i=0;i<all.length;i++){
-    var c=all[i];if(c.v<=0)continue;
-    if(fl_v!=="ALL"&&c.l!==fl_v)continue;
-    if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)continue;
-    var costBase=(c.mp/c.r)+mod+fl+gf;
-    var pBE=costBase/(1-impPct);
-    if(st==="BAJO"&&c.pv>=pBE)continue;
-    if(st==="OK"&&c.pv<pBE)continue;
-    var p10=pBE*1.10;var p20=pBE*1.20;
-    var e10=p10-(c.mp/c.r)-mod-p10*impPct-fl-gf;
-    var e20=p20-(c.mp/c.r)-mod-p20*impPct-fl-gf;
-    var gap=c.pv-pBE;
-    items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,p10:p10,e10:e10,p20:p20,e20:e20,gap:gap,v:c.v,ebitdaAbs:c.ebitdaAbs});
-  }
+  var items=[];for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;if(fl_v!=="ALL"&&c.l!==fl_v)continue;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)continue;
+  var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);if(st==="BAJO"&&c.pv>=pBE)continue;if(st==="OK"&&c.pv<pBE)continue;
+  var p10=pBE*1.10;var p20=pBE*1.20;var e10=p10-(c.mp/c.r)-mod-p10*impPct-fl-gf;var e20=p20-(c.mp/c.r)-mod-p20*impPct-fl-gf;
+  items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,p10:p10,e10:e10,p20:p20,e20:e20,gap:c.pv-pBE,v:c.v});}
   items.sort(function(a,b){return a.gap-b.gap});
-
-  var h='<table><thead><tr>';
-  h+='<th>Línea</th><th>Producto</th>';
-  h+='<th style="text-align:right">Precio Actual</th><th style="text-align:right">EBITDA Actual</th>';
-  h+='<th style="text-align:right;color:var(--or)">P. Breakeven</th>';
-  h+='<th style="text-align:right;color:var(--ac)">P. +10%</th><th style="text-align:right;color:var(--ac)">EBITDA +10%</th>';
-  h+='<th style="text-align:right;color:var(--gn)">P. +20%</th><th style="text-align:right;color:var(--gn)">EBITDA +20%</th>';
-  h+='<th style="text-align:right">Gap vs BE</th><th>Vol</th><th>Status</th>';
-  h+='</tr></thead><tbody>';
-
-  for(var i=0;i<items.length;i++){
-    var c=items[i];
-    var gapColor=c.gap>=0?'var(--gn)':'var(--rd)';
-    var tag=c.gap>=c.pBE*0.2?'<span class="tag tag-ok">≥+20%</span>':c.gap>=c.pBE*0.1?'<span class="tag tag-ok">≥+10%</span>':c.gap>=0?'<span class="tag tag-warn">≥BE</span>':'<span class="tag tag-bad">BAJO BE</span>';
-    var rowBg=c.gap<0?'background:rgba(255,77,106,.04);':'';
-    h+='<tr style="'+rowBg+'">';
-    h+='<td style="font-size:10px;color:var(--t2)">'+c.l+'</td>';
-    h+='<td style="font-weight:500">'+c.p+'</td>';
-    h+='<td class="mono" style="text-align:right">'+fd(c.pv)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.ebitda)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pBE)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.p10)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.e10)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p20)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e20)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:'+gapColor+'">'+(c.gap>=0?'+':'')+fd(c.gap)+'</td>';
-    h+='<td class="mono">'+fmt(c.v)+'</td>';
-    h+='<td>'+tag+'</td>';
-    h+='</tr>';
-  }
-  h+='</tbody></table>';
-  document.getElementById("pr-tbl").innerHTML=h;
+  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">P.Actual</th><th style="text-align:right">EBITDA Act</th><th style="text-align:right;color:var(--or)">Breakeven</th><th style="text-align:right;color:var(--ac)">P.+10%</th><th style="text-align:right;color:var(--ac)">EBITDA+10%</th><th style="text-align:right;color:var(--gn)">P.+20%</th><th style="text-align:right;color:var(--gn)">EBITDA+20%</th><th style="text-align:right">Gap</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
+  for(var i=0;i<items.length;i++){var c=items[i];var gc=c.gap>=0?'var(--gn)':'var(--rd)';var tag=c.gap>=c.pBE*0.2?'<span class="tag tag-ok">≥+20%</span>':c.gap>=c.pBE*0.1?'<span class="tag tag-ok">≥+10%</span>':c.gap>=0?'<span class="tag tag-warn">≥BE</span>':'<span class="tag tag-bad">BAJO</span>';var rb=c.gap<0?'background:rgba(255,77,106,.04);':'';
+  h+='<tr style="'+rb+'"><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right;color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.ebitda)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pBE)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.p10)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.e10)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e20)+'</td><td class="mono" style="text-align:right;color:'+gc+'">'+(c.gap>=0?'+':'')+fd(c.gap)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
+  h+='</tbody></table>';document.getElementById("pr-tbl").innerHTML=h;
 }
 
+// ===== TAB: ALERTAS =====
+function renderAlertas(){
+  var all=calcAllPL();var costGt=[],negM=[];
+  for(var i=0;i<all.length;i++){var c=all[i];if(c.mp/c.r>c.pv&&c.v>0)costGt.push(c);if(c.ebitda<0&&c.v>0)negM.push(c);}
+  negM.sort(function(a,b){return a.ebitdaAbs-b.ebitdaAbs});var tL=0;for(var i=0;i<negM.length;i++)tL+=negM[i].ebitdaAbs;
+  var h='<div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi" style="border-color:var(--rd)"><div class="lb">Costo > Precio</div><div class="vl neg">'+costGt.length+'</div></div><div class="kpi" style="border-color:var(--or)"><div class="lb">EBITDA Negativo</div><div class="vl warn">'+negM.length+'</div></div><div class="kpi"><div class="lb">Pérdida Total</div><div class="vl neg">USD '+fmt(tL)+'</div></div></div>';
+  if(costGt.length){h+='<div class="card full"><h3>COSTO MP > PRECIO</h3><table><thead><tr><th>Producto</th><th>Línea</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Dif</th><th>Vol</th></tr></thead><tbody>';for(var i=0;i<costGt.length;i++){var c=costGt[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td style="color:var(--t2)">'+c.l+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp/c.r)+'</td><td class="mono neg" style="text-align:right">('+fd(c.mp/c.r-c.pv)+')</td><td class="mono">'+fmt(c.v)+'</td></tr>';}h+='</tbody></table></div>';}
+  h+='<div class="card full"><h3>EBITDA NEGATIVO — Pérdida: USD '+fmt(tL)+'</h3><table><thead><tr><th>Producto</th><th>Línea</th><th style="text-align:right">Pérdida/kg</th><th style="text-align:right">Pérdida Total</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
+  for(var i=0;i<negM.length;i++){var c=negM[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td style="color:var(--t2)">'+c.l+'</td><td class="mono neg" style="text-align:right">'+fd(c.ebitda)+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
+  h+='</tbody></table></div>';document.getElementById("content").innerHTML=h;
+}
+
+// ===== TAB: SIMULADOR =====
 function renderSimulador(){
-  var all=calcAll().filter(function(c){return c.v>0}).sort(function(a,b){return b.rev-a.rev}).slice(0,15);
+  var all=calcAllPL().filter(function(c){return c.v>0}).sort(function(a,b){return b.rev-a.rev}).slice(0,15);
   window._sim=all;window._sp=[];for(var i=0;i<all.length;i++)window._sp.push(all[i].pv);
-  var h='<div class="card full"><h3>Simulador de Pricing — Top 15 productos por revenue</h3><p style="color:var(--t2);font-size:12px;margin-bottom:16px">Ajuste el precio y vea cómo cambia el EBITDA</p>';
-  h+='<div style="display:grid;grid-template-columns:200px 70px 1fr 70px 80px 70px;gap:6px;align-items:center;font-size:10px;color:var(--t2);padding-bottom:8px;border-bottom:1px solid var(--bd)"><div>Producto</div><div>Actual</div><div>Nuevo Precio</div><div>EBITDA/kg</div><div>EBITDA Total</div><div>Delta</div></div>';
+  var t=totalsPL(calcAllPL());
+  var h='<div class="card full"><h3>Simulador de Pricing — Top 15</h3><div style="display:grid;grid-template-columns:200px 60px 1fr 60px 70px 60px;gap:6px;align-items:center;font-size:9px;color:var(--t2);padding-bottom:6px;border-bottom:1px solid var(--bd)"><div>Producto</div><div>Actual</div><div>Nuevo</div><div>EBITDA</div><div>Total</div><div>Delta</div></div>';
   for(var i=0;i<all.length;i++){var c=all[i];var mn=Math.max(0,Math.round(c.pv*50));var mx=Math.round(c.pv*200);
-  h+='<div style="display:grid;grid-template-columns:200px 70px 1fr 70px 80px 70px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd)">';
-  h+='<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.p+'</div>';
-  h+='<div class="mono">'+fd(c.pv)+'</div>';
-  h+='<div style="display:flex;align-items:center;gap:6px"><input type="range" min="'+mn+'" max="'+mx+'" value="'+Math.round(c.pv*100)+'" oninput="simU('+i+',this.value)" style="flex:1;height:4px;-webkit-appearance:none;background:var(--bd);border-radius:2px;outline:none;cursor:pointer"><span class="mono" id="sp'+i+'" style="min-width:45px">'+fd(c.pv)+'</span></div>';
-  h+='<div class="mono" id="se'+i+'">'+fd(c.ebitda)+'</div>';
-  h+='<div class="mono" id="st'+i+'">'+fmt(c.ebitdaAbs)+'</div>';
-  h+='<div class="mono" id="sd'+i+'">0</div></div>';}
-  var tAll=calcAll();var tTot=totals(tAll);
-  h+='<div style="margin-top:16px;padding:16px;background:var(--s1);border-radius:8px;display:flex;justify-content:space-between;align-items:center">';
-  h+='<div><span style="color:var(--t2);font-size:12px">EBITDA Total Simulado:</span><span class="mono" style="font-size:18px;margin-left:12px" id="simTE">USD '+(tTot.ebitda<0?'-':'')+fmt(tTot.ebitda)+'</span></div>';
-  h+='<div><span style="color:var(--t2);font-size:12px">Delta vs Actual:</span><span class="mono" style="font-size:18px;margin-left:12px" id="simTD">USD 0</span></div></div></div>';
+  h+='<div style="display:grid;grid-template-columns:200px 60px 1fr 60px 70px 60px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--bd)"><div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.p+'</div><div class="mono">'+fd(c.pv)+'</div><div style="display:flex;align-items:center;gap:4px"><input type="range" min="'+mn+'" max="'+mx+'" value="'+Math.round(c.pv*100)+'" oninput="simU('+i+',this.value)" style="flex:1"><span class="mono" id="sp'+i+'" style="min-width:40px">'+fd(c.pv)+'</span></div><div class="mono" id="se'+i+'">'+fd(c.ebitda)+'</div><div class="mono" id="st'+i+'">'+fmt(c.ebitdaAbs)+'</div><div class="mono" id="sd'+i+'">0</div></div>';}
+  h+='<div style="margin-top:12px;padding:12px;background:var(--s1);border-radius:8px;display:flex;justify-content:space-between"><div><span style="color:var(--t2);font-size:11px">EBITDA Simulado:</span><span class="mono" style="font-size:16px;margin-left:8px" id="simTE">USD '+(t.ebitda<0?'-':'')+fmt(t.ebitda)+'</span></div><div><span style="color:var(--t2);font-size:11px">Delta:</span><span class="mono" style="font-size:16px;margin-left:8px" id="simTD">USD 0</span></div></div></div>';
   document.getElementById("content").innerHTML=h;
 }
+function simU(i,val){var c=window._sim[i];var np=val/100;window._sp[i]=np;document.getElementById("sp"+i).textContent=fd(np);var ne=c.ebitda+(np-c.pv);var nt=ne*c.v;var d=nt-c.ebitdaAbs;document.getElementById("se"+i).textContent=fd(ne);document.getElementById("se"+i).style.color=ne>=0?"var(--gn)":"var(--rd)";document.getElementById("st"+i).textContent=fmt(nt);document.getElementById("st"+i).style.color=nt>=0?"var(--gn)":"var(--rd)";document.getElementById("sd"+i).textContent=(d>=0?"+":"")+fmt(d);document.getElementById("sd"+i).style.color=d>=0?"var(--gn)":"var(--rd)";var td=0;for(var j=0;j<window._sim.length;j++){var sp=window._sim[j];td+=(sp.ebitda+(window._sp[j]-sp.pv))*sp.v-sp.ebitdaAbs;}var t=totalsPL(calcAllPL());var nw=t.ebitda+td;document.getElementById("simTE").textContent="USD "+(nw<0?"-":"")+fmt(nw);document.getElementById("simTE").style.color=nw>=0?"var(--gn)":"var(--rd)";document.getElementById("simTD").textContent="USD "+(td>=0?"+":"")+fmt(td);document.getElementById("simTD").style.color=td>=0?"var(--gn)":"var(--rd)";}
 
-function simU(i,val){
-  var c=window._sim[i];var np=val/100;window._sp[i]=np;
-  document.getElementById("sp"+i).textContent=fd(np);
-  var ne=c.ebitda+(np-c.pv);var nt=ne*c.v;var delta=nt-c.ebitdaAbs;
-  var el=document.getElementById("se"+i);el.textContent=fd(ne);el.style.color=ne>=0?"var(--gn)":"var(--rd)";
-  var tl=document.getElementById("st"+i);tl.textContent=fmt(nt);tl.style.color=nt>=0?"var(--gn)":"var(--rd)";
-  var dl=document.getElementById("sd"+i);dl.textContent=(delta>=0?"+":"")+fmt(delta);dl.style.color=delta>=0?"var(--gn)":"var(--rd)";
-  var td=0;for(var j=0;j<window._sim.length;j++){var sp=window._sim[j];var snp=window._sp[j];td+=(sp.ebitda+(snp-sp.pv))*sp.v-sp.ebitdaAbs;}
-  var tAll=calcAll();var tTot=totals(tAll);var nw=tTot.ebitda+td;
-  var te=document.getElementById("simTE");te.textContent="USD "+(nw<0?"-":"")+fmt(nw);te.style.color=nw>=0?"var(--gn)":"var(--rd)";
-  var tdd=document.getElementById("simTD");tdd.textContent="USD "+(td>=0?"+":"")+fmt(td);tdd.style.color=td>=0?"var(--gn)":"var(--rd)";
-}
-
+// ===== TAB: VISTA UNITARIA =====
 function renderUnitario(){
   var lineSet={};for(var i=0;i<P.length;i++)lineSet[P[i].l]=1;var lks=Object.keys(lineSet).sort();
-  var h='<div class="row"><div class="card" style="grid-column:1/-1"><h3>P&L Unitario — Waterfall USD/kg</h3>';
-  h+='<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">';
-  h+='<select id="u-l" onchange="doFU()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todas</option>';
-  for(var i=0;i<lks.length;i++)h+='<option value="'+lks[i]+'">'+lks[i]+'</option>';
-  h+='</select><select id="u-st" onchange="doFU()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todos</option><option value="POS">Rentables</option><option value="NEG">Con pérdida</option></select>';
-  h+='<input id="u-s" placeholder="Buscar..." oninput="doFU()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px;flex:1"></div>';
-  h+='<div id="u-tbl" style="max-height:calc(100vh - 380px);overflow-y:auto"></div></div></div>';
-  h+='<div class="row"><div class="card" id="u-det"><h3>Detalle Unitario</h3><p style="color:var(--t2);font-size:12px">Click en un producto para ver el waterfall</p></div>';
-
-  // Avg cost
-  var items=calcAll().filter(function(c){return c.v>0});
-  var ap=0,am=0,tv=0;for(var i=0;i<items.length;i++){ap+=items[i].pv*items[i].v;am+=items[i].mp/items[i].r*items[i].v;tv+=items[i].v;}
-  ap/=tv;am/=tv;var gf=gp('pGF');var mod=gp('pMOD');var fl=gp('pFL');var impP=gp('pIMP')/100;
-  var acmg=ap-am-mod-ap*impP-fl;var ae=acmg-gf;
-  h+='<div class="card"><h3>Costos Promedio Ponderado</h3><div style="margin-top:8px">';
-  h+='<div class="sr"><span class="lb">Precio Venta</span><span class="vl">USD '+ap.toFixed(2)+'</span></div>';
-  h+='<div class="sr"><span class="lb">(-) MP/Rendimiento</span><span class="vl neg">USD '+am.toFixed(2)+'</span></div>';
-  h+='<div class="sr"><span class="lb">(-) MOD+E+L</span><span class="vl" style="color:var(--t2)">USD '+mod.toFixed(2)+'</span></div>';
-  h+='<div class="sr"><span class="lb">(-) Imp+Flete</span><span class="vl" style="color:var(--t2)">USD '+(ap*impP+fl).toFixed(2)+'</span></div>';
-  h+='<div style="border-top:1px solid var(--bd);margin:4px 0"></div>';
-  h+='<div class="sr"><span class="lb" style="font-weight:600">= CMG</span><span class="vl" style="color:'+(acmg>=0?'var(--gn)':'var(--rd)')+'">USD '+acmg.toFixed(2)+'</span></div>';
-  h+='<div class="sr"><span class="lb">(-) Gastos Fijos</span><span class="vl warn">USD '+gf.toFixed(2)+'</span></div>';
-  h+='<div style="border-top:2px solid var(--bd);margin:4px 0"></div>';
-  h+='<div class="sr"><span class="lb" style="font-weight:700">= EBITDA</span><span class="vl" style="color:'+(ae>=0?'var(--gn)':'var(--rd)')+';font-size:16px">USD '+ae.toFixed(2)+'</span></div>';
-  h+='</div></div></div>';
-  document.getElementById("content").innerHTML=h;doFU();
+  var h='<div class="card full"><h3>P&L Unitario — Waterfall</h3><div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap"><select id="u-l" onchange="doFU()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option>';
+  for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
+  h+='</select><select id="u-st" onchange="doFU()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todos</option><option value="POS">Rentables</option><option value="NEG">Pierde</option></select><input id="u-s" placeholder="Buscar..." oninput="doFU()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1"></div>';
+  h+='<div id="u-tbl" style="max-height:calc(100vh - 350px);overflow-y:auto"></div></div>';
+  h+='<div class="row"><div class="card" id="u-det"><h3>Detalle</h3><p style="color:var(--t2);font-size:11px">Click en un producto</p></div><div class="card" id="u-avg"></div></div>';
+  document.getElementById("content").innerHTML=h;
+  // Render avg
+  var items=calcAllPL().filter(function(c){return c.v>0});var ap=0,am=0,tv=0;for(var i=0;i<items.length;i++){ap+=items[i].pv*items[i].v;am+=items[i].mp/items[i].r*items[i].v;tv+=items[i].v;}ap/=tv;am/=tv;var gf=gp('pGF'),mod=gp('pMOD'),fl=gp('pFL'),ip=gp('pIMP')/100;var acmg=ap-am-mod-ap*ip-fl;var ae=acmg-gf;
+  var ah='<h3>Promedio Ponderado</h3><div class="sr"><span class="lb">Precio</span><span class="vl">USD '+ap.toFixed(2)+'</span></div><div class="sr"><span class="lb">(-) MP/R</span><span class="vl neg">'+am.toFixed(2)+'</span></div><div class="sr"><span class="lb">(-) MOD</span><span class="vl" style="color:var(--t2)">'+mod.toFixed(2)+'</span></div><div class="sr"><span class="lb">(-) Imp+Fl</span><span class="vl" style="color:var(--t2)">'+(ap*ip+fl).toFixed(2)+'</span></div><div style="border-top:1px solid var(--bd);margin:4px 0"></div><div class="sr"><span class="lb" style="font-weight:600">= CMG</span><span class="vl" style="color:'+(acmg>=0?'var(--gn)':'var(--rd)')+'">'+acmg.toFixed(2)+'</span></div><div class="sr"><span class="lb">(-) GF</span><span class="vl warn">'+gf.toFixed(2)+'</span></div><div style="border-top:2px solid var(--bd);margin:4px 0"></div><div class="sr"><span class="lb" style="font-weight:700">= EBITDA</span><span class="vl" style="color:'+(ae>=0?'var(--gn)':'var(--rd)')+';font-size:15px">USD '+ae.toFixed(2)+'</span></div>';
+  document.getElementById("u-avg").innerHTML=ah;doFU();
 }
-
 function doFU(){
-  var all=calcAll();var fl=document.getElementById("u-l").value;var st=document.getElementById("u-st").value;var fs=document.getElementById("u-s").value.toLowerCase();
-  var items=all.filter(function(c){if(c.v<=0)return false;if(fl!=="ALL"&&c.l!==fl)return false;if(st==="POS"&&c.ebitda<=0)return false;if(st==="NEG"&&c.ebitda>0)return false;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)return false;return true;}).sort(function(a,b){return b.rev-a.rev});
-  var maxP=0;for(var i=0;i<items.length;i++)if(items[i].pv>maxP)maxP=items[i].pv;
-  var gf=gp('pGF');
-  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP/R</th><th style="text-align:right">MOD</th><th style="text-align:right">Imp+Fl</th><th style="text-align:right">CMG</th><th>CMG%</th><th style="text-align:right">GF</th><th style="text-align:right">EBITDA</th><th>%</th><th>Waterfall</th></tr></thead><tbody>';
-  for(var i=0;i<items.length;i++){var c=items[i];var mpr=c.mp/c.r;var bw=maxP>0?100:0;
-  var mpW=mpr/maxP*bw;var modW=c.mod/maxP*bw;var impW=(c.imp+c.fl)/maxP*bw;var gfW=gf/maxP*bw;
-  var eW=c.ebitda>0?c.ebitda/maxP*bw:0;var lW=c.ebitda<0?Math.min(Math.abs(c.ebitda)/maxP*bw,15):0;
-  var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';
-  h+='<tr style="cursor:pointer" onclick="showUD('+i+')">';
-  h+='<td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td>';
-  h+='<td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(mpr)+'</td>';
-  h+='<td class="mono" style="text-align:right;color:var(--t2)">'+fd(c.mod)+'</td>';
-  h+='<td class="mono" style="text-align:right;color:var(--t2)">'+fd(c.imp+c.fl)+'</td>';
-  h+='<td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.cmgPct)+'</td>';
-  h+='<td class="mono warn" style="text-align:right">'+fd(gf)+'</td>';
-  h+='<td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td>';
-  h+='<td><div style="display:flex;height:10px;border-radius:2px;overflow:hidden;width:'+bw+'px;background:var(--bd)">';
-  h+='<div style="width:'+mpW+'px;background:var(--rd);opacity:.7"></div><div style="width:'+modW+'px;background:var(--or);opacity:.7"></div><div style="width:'+impW+'px;background:var(--pu);opacity:.5"></div><div style="width:'+gfW+'px;background:var(--t2);opacity:.5"></div>';
-  if(c.ebitda>0)h+='<div style="width:'+eW+'px;background:var(--gn)"></div>';else h+='<div style="width:'+lW+'px;background:var(--rd);opacity:.3"></div>';
-  h+='</div></td></tr>';}
-  h+='</tbody></table>';
-  document.getElementById("u-tbl").innerHTML=h;window._ui=items;
+  var all=calcAllPL();var fl=document.getElementById("u-l").value;var st=document.getElementById("u-st").value;var fs=document.getElementById("u-s").value.toLowerCase();
+  var items=all.filter(function(c){if(c.v<=0)return false;if(fl!=="ALL"&&c.l!==fl)return false;if(st==="POS"&&c.ebitda<=0)return false;if(st==="NEG"&&c.ebitda>0)return false;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)return false;return true;}).sort(function(a,b){return b.rev-a.rev;});
+  var maxP=0;for(var i=0;i<items.length;i++)if(items[i].pv>maxP)maxP=items[i].pv;var gf=gp('pGF');
+  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP/R</th><th style="text-align:right">CMG</th><th style="text-align:right">EBITDA</th><th>%</th><th>Waterfall</th></tr></thead><tbody>';
+  for(var i=0;i<items.length;i++){var c=items[i];var mpr=c.mp/c.r;var bw=maxP>0?80:0;var mpW=mpr/maxP*bw;var modW=c.mod/maxP*bw;var impW=(c.imp+c.fl)/maxP*bw;var gfW=gf/maxP*bw;var eW=c.ebitda>0?c.ebitda/maxP*bw:0;var lW=c.ebitda<0?Math.min(Math.abs(c.ebitda)/maxP*bw,12):0;var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';
+  h+='<tr style="cursor:pointer" onclick="showUD('+i+')"><td style="font-size:9px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(mpr)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td><div style="display:flex;height:8px;border-radius:2px;overflow:hidden;width:'+bw+'px;background:var(--bd)"><div style="width:'+mpW+'px;background:var(--rd);opacity:.7"></div><div style="width:'+modW+'px;background:var(--or);opacity:.7"></div><div style="width:'+impW+'px;background:var(--pu);opacity:.5"></div><div style="width:'+gfW+'px;background:var(--t2);opacity:.5"></div>'+(c.ebitda>0?'<div style="width:'+eW+'px;background:var(--gn)"></div>':'<div style="width:'+lW+'px;background:var(--rd);opacity:.3"></div>')+'</div></td></tr>';}
+  h+='</tbody></table>';document.getElementById("u-tbl").innerHTML=h;window._ui=items;
+}
+function showUD(idx){var c=window._ui[idx];var mpr=c.mp/c.r;var gf=gp('pGF');var h='<h3>'+c.p+'</h3><div style="font-size:10px;color:var(--t2);margin-bottom:6px">'+c.l+' · R='+c.r+'</div>';h+='<div class="sr" style="padding:5px 0"><span class="lb">Precio</span><span class="vl" style="font-size:14px">USD '+fd(c.pv)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) MP/R</span><span class="vl neg">'+fd(mpr)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) MOD</span><span class="vl" style="color:var(--t2)">'+fd(c.mod)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) Imp</span><span class="vl" style="color:var(--t2)">'+fd(c.imp)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) Flete</span><span class="vl" style="color:var(--t2)">'+fd(c.fl)+'</span></div>';h+='<div style="border-top:2px solid var(--bd);margin:4px 0"></div>';h+='<div class="sr"><span class="lb" style="font-weight:700">= CMG</span><span class="vl" style="color:'+(c.cmg>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.cmg)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) GF</span><span class="vl warn">'+fd(gf)+'</span></div>';h+='<div style="border-top:3px solid var(--ac);margin:4px 0"></div>';h+='<div class="sr"><span class="lb" style="font-weight:700;font-size:13px">= EBITDA</span><span class="vl" style="color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+';font-size:16px">USD '+fd(c.ebitda)+'</span></div>';h+='<div style="border-top:1px solid var(--bd);margin:6px 0"></div>';h+='<div class="sr"><span class="lb">Vol</span><span class="vl">'+fmt(c.v)+' kg</span></div>';h+='<div class="sr"><span class="lb">EBITDA anual</span><span class="vl" style="color:'+(c.ebitdaAbs>=0?'var(--gn)':'var(--rd)')+'">USD '+(c.ebitdaAbs<0?'-':'')+fmt(c.ebitdaAbs)+'</span></div>';if(c.ebitda<0)h+='<div style="margin-top:6px;padding:6px;background:rgba(255,77,106,.1);border-radius:6px;font-size:10px;color:var(--rd)">Breakeven: USD '+fd(c.pv-c.ebitda)+'/kg</div>';document.getElementById("u-det").innerHTML=h;}
+
+// ===== TAB: INVENTARIO =====
+function renderInventario(){
+  var tna=gp('pTNA')/100;var tc=gp('pTC');
+  var tsu=0,tcf=0,nc=0;for(var i=0;i<P.length;i++){var c=calcInv(P[i]);tsu+=c.su;tcf+=c.cfa;if(c.sk>0)nc++;}
+  var cpk=P.length>0?tcf/P.reduce(function(a,b){return a+b.v},0):0;
+  var h='<div class="kpis" style="grid-template-columns:repeat(5,1fr)">';
+  h+='<div class="kpi"><div class="lb">Stock Inmovilizado</div><div class="vl warn">USD '+fmt(tsu)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Anual</div><div class="vl neg">USD '+fmt(tcf)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Promedio/kg</div><div class="vl neg">USD '+fd(cpk)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Mensual ARS</div><div class="vl neg">ARS '+fmt(tcf/12*tc)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">Con Stock</div><div class="vl">'+nc+'/'+P.length+'</div></div></div>';
+  h+='<div class="card full"><h3>Costo Financiero por Producto — Edite Lead Time y Stock de Seguridad</h3><p style="color:var(--t2);font-size:10px;margin-bottom:10px">Los cambios aquí actualizan automáticamente el P&L (CF Inventario por producto)</p>';
+  h+='<div id="inv-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
+  document.getElementById("content").innerHTML=h;renderInvTbl();
+}
+function renderInvTbl(){
+  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th>Origen</th><th style="text-align:right">Vol</th><th>Lead Time</th><th>Stock Seg</th><th>Std</th><th style="text-align:right">Stock kg</th><th style="text-align:right">MP</th><th style="text-align:right">Stock USD</th><th style="text-align:right">CF/kg</th><th>%MP</th><th style="text-align:right">CF Anual</th></tr></thead><tbody>';
+  for(var i=0;i<P.length;i++){var s=P[i],c=calcInv(s);var cc=c.cfs>1?"var(--rd)":c.cfs>0.5?"var(--or)":"var(--gn)";
+  h+='<tr><td style="font-size:9px;color:var(--t2)">'+s.l+'</td><td style="font-weight:500;font-size:11px">'+s.p+'</td><td style="font-size:9px;color:var(--t2)">'+(s.o||'')+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(s.v)+'</td>';
+  h+='<td><input type="range" min="0" max="120" value="'+s.lt+'" oninput="uiInv('+i+','lt',this.value)" style="width:50px"><span class="pv">'+s.lt+'d</span></td>';
+  h+='<td><input type="range" min="0" max="90" value="'+s.ss+'" oninput="uiInv('+i+','ss',this.value)" style="width:50px"><span class="pv">'+s.ss+'d</span></td>';
+  h+='<td class="mono" style="text-align:center;font-size:10px">'+c.sd+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(c.sk)+'</td><td class="mono" style="text-align:right;font-size:10px">'+fd(s.mp)+'</td><td class="mono warn" style="text-align:right;font-size:10px">'+fmt(c.su)+'</td><td class="mono" style="text-align:right;color:'+cc+';font-size:10px">'+fd(c.cfs)+'</td><td class="mono" style="color:'+cc+';font-size:10px">'+(c.cfp*100).toFixed(1)+'%</td><td class="mono neg" style="text-align:right;font-size:10px">'+fmt(c.cfa)+'</td></tr>';}
+  h+='</tbody></table>';document.getElementById("inv-tbl").innerHTML=h;
+}
+function uiInv(i,f,val){P[i][f]=parseInt(val);renderInventario();}
+
+// ===== TAB: ASIGNACION DE GASTOS =====
+function renderGastos(){
+  if(G.length===0){
+    var h='<div style="text-align:center;padding:80px 40px"><h2 style="color:var(--or);margin-bottom:16px">💼 Asignación de Gastos Operativos</h2><p style="color:var(--t2);margin-bottom:24px">Cargue el archivo Excel de Gastos Operativos (INPUT_3_Gastos_Operativos.xlsx)</p>';
+    h+='<label class="btn-load" style="padding:16px 32px;font-size:14px" onclick="document.getElementById('gasFile').click()">📂 Cargar Excel de Gastos</label>';
+    h+='<input type="file" id="gasFile" accept=".xlsx,.xls" style="display:none" onchange="loadGastos(this.files[0])">';
+    h+='<div style="margin-top:24px;color:var(--t2);font-size:12px">Después de asignar, los valores de GF y MOD se actualizan automáticamente en el P&L</div></div>';
+    document.getElementById("content").innerHTML=h;return;
+  }
+  var tc=gp('pTC'),volR=gp('pVol'),volV=G_VOL_V;
+  var r={cdir:0,fijo:0,logis:0,back:0},v={cdir:0,fijo:0,logis:0,back:0},totalCost=0,unassigned=0;
+  G.forEach(function(g,i){var cf=g.costo_final,a=GA[i];var sum=a.cdir_r+a.fijo_r+a.logis_r+a.back_r+a.cdir_v+a.fijo_v+a.logis_v+a.back_v;r.cdir+=cf*a.cdir_r;r.fijo+=cf*a.fijo_r;r.logis+=cf*a.logis_r;r.back+=cf*a.back_r;v.cdir+=cf*a.cdir_v;v.fijo+=cf*a.fijo_v;v.logis+=cf*a.logis_v;v.back+=cf*a.back_v;totalCost+=cf;if(Math.abs(sum)<.01&&cf!==0)unassigned++;});
+  r.total=r.cdir+r.fijo+r.logis+r.back;v.total=v.cdir+v.fijo+v.logis+v.back;
+  var rPerKg=Math.abs(r.total)/tc/volR;var vPerKg=Math.abs(v.total)/tc/volV;
+  // Auto-update P&L params
+  var newGF=(Math.abs(r.fijo)+Math.abs(r.back))/tc/volR;
+  var newMOD=(Math.abs(r.cdir)+Math.abs(r.logis))/tc/volR;
+  document.getElementById('pGF').value=newGF.toFixed(4);
+  document.getElementById('pMOD').value=newMOD.toFixed(4);
+
+  var fmtG=function(n){return Math.abs(n).toLocaleString('es-AR',{maximumFractionDigits:0})};
+  var h='<div class="kpis" style="grid-template-columns:repeat(6,1fr)">';
+  h+='<div class="kpi"><div class="lb">Gasto Total</div><div class="vl">ARS '+fmtG(totalCost)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">→ RECSA</div><div class="vl" style="color:var(--ac)">ARS '+fmtG(r.total)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">→ VIVALCE</div><div class="vl" style="color:var(--gn)">ARS '+fmtG(v.total)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">USD/kg RECSA</div><div class="vl" style="color:var(--ac)">USD '+rPerKg.toFixed(2)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">USD/kg VIVALCE</div><div class="vl" style="color:var(--gn)">USD '+vPerKg.toFixed(2)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">Sin Asignar</div><div class="vl" style="color:'+(unassigned>0?'var(--rd)':'var(--gn)')+'">'+unassigned+'</div></div></div>';
+  h+='<div style="padding:8px 0;font-size:11px;color:var(--gn)">✅ GF y MOD del P&L actualizados automáticamente — GF: USD '+newGF.toFixed(4)+'/kg · MOD: USD '+newMOD.toFixed(4)+'/kg</div>';
+  h+='<div class="card full"><h3>Asignación por Gasto</h3><div style="margin-bottom:8px;display:flex;gap:8px"><select id="g-emp" onchange="renderGTbl()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:4px 8px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option><option value="RECSA">RECSA</option><option value="VIVALCE">VIVALCE</option></select><input id="g-s" placeholder="Buscar..." oninput="renderGTbl()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:4px 8px;border-radius:6px;font-size:11px;flex:1"></div>';
+  h+='<div id="g-tbl" style="max-height:calc(100vh - 380px);overflow-y:auto"></div></div>';
+  document.getElementById("content").innerHTML=h;renderGTbl();
+}
+function renderGTbl(){
+  var fe=document.getElementById('g-emp').value;var fs=document.getElementById('g-s').value.toLowerCase();
+  var filtered=G.map(function(g,i){return Object.assign({},g,{i:i})}).filter(function(g){if(fe!=='ALL'&&g.empresa!==fe)return false;if(fs&&!(g.nombre+g.concepto+g.posicion).toLowerCase().includes(fs))return false;return true;});
+  var fmtG=function(n){return Math.abs(n).toLocaleString('es-AR',{maximumFractionDigits:0})};
+  var h='<table><thead><tr><th>Emp</th><th>Concepto</th><th>Nombre</th><th style="text-align:right">Costo</th><th style="text-align:center;color:var(--ac)">RECSA</th><th style="text-align:center;color:var(--ac)">RECSA L+B</th><th style="text-align:center;color:var(--gn)">VIVALCE</th><th style="text-align:center;color:var(--gn)">VIVALCE L+B</th><th>Σ</th></tr></thead><tbody>';
+  filtered.forEach(function(g){var i=g.i,a=GA[i];var sR1=a.cdir_r+a.fijo_r,sR2=a.logis_r+a.back_r,sV1=a.cdir_v+a.fijo_v,sV2=a.logis_v+a.back_v;var total=sR1+sR2+sV1+sV2;var ok=Math.abs(total-1)<=.05||g.costo_final===0;var tag=g.empresa==='RECSA'?'<span class="tag" style="background:rgba(79,140,255,.15);color:var(--ac)">R</span>':'<span class="tag" style="background:rgba(0,212,170,.15);color:var(--gn)">V</span>';
+  h+='<tr><td>'+tag+'</td><td style="font-size:10px;color:var(--t2)">'+g.concepto+'</td><td style="font-weight:500;font-size:11px">'+g.nombre+'</td><td class="mono" style="text-align:right">'+fmtG(g.costo_final)+'</td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sR1*100)+'" oninput="updG('+i+','r1',this.value)" style="width:50px"><span class="pv" id="gv'+i+'r1">'+Math.round(sR1*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sR2*100)+'" oninput="updG('+i+','r2',this.value)" style="width:50px"><span class="pv" id="gv'+i+'r2">'+Math.round(sR2*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sV1*100)+'" oninput="updG('+i+','v1',this.value)" style="width:50px"><span class="pv" id="gv'+i+'v1">'+Math.round(sV1*100)+'%</span></td>';
+  h+='<td><input type="range" min="0" max="100" value="'+Math.round(sV2*100)+'" oninput="updG('+i+','v2',this.value)" style="width:50px"><span class="pv" id="gv'+i+'v2">'+Math.round(sV2*100)+'%</span></td>';
+  h+='<td class="mono" style="color:'+(ok?'var(--gn)':'var(--rd)')+'">'+Math.round(total*100)+'%</td></tr>';});
+  h+='</tbody></table>';document.getElementById("g-tbl").innerHTML=h;
+}
+function updG(i,group,val){
+  var pct=val/100,a=GA[i];
+  if(group==='r1'){var old=a.cdir_r+a.fijo_r;if(old>0){a.cdir_r=pct*(a.cdir_r/old);a.fijo_r=pct*(a.fijo_r/old)}else{a.cdir_r=pct*.5;a.fijo_r=pct*.5}}
+  else if(group==='r2'){var old=a.logis_r+a.back_r;if(old>0){a.logis_r=pct*(a.logis_r/old);a.back_r=pct*(a.back_r/old)}else{a.logis_r=pct*.5;a.back_r=pct*.5}}
+  else if(group==='v1'){var old=a.cdir_v+a.fijo_v;if(old>0){a.cdir_v=pct*(a.cdir_v/old);a.fijo_v=pct*(a.fijo_v/old)}else{a.cdir_v=pct*.5;a.fijo_v=pct*.5}}
+  else if(group==='v2'){var old=a.logis_v+a.back_v;if(old>0){a.logis_v=pct*(a.logis_v/old);a.back_v=pct*(a.back_v/old)}else{a.logis_v=pct*.5;a.back_v=pct*.5}}
+  document.getElementById('gv'+i+group).textContent=val+'%';
+  renderGastos();
 }
 
-function showUD(idx){
-  var c=window._ui[idx];var mpr=c.mp/c.r;var gf=gp('pGF');
-  var h='<h3>'+c.p+'</h3><div style="font-size:11px;color:var(--t2);margin-bottom:8px">'+c.l+' · Rendimiento: '+c.r+'</div><div style="margin-top:10px">';
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-size:13px">Precio de Venta</span><span class="vl" style="font-size:15px">USD '+fd(c.pv)+' /kg</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) MP+ME / Rend</span><span class="vl neg">USD '+fd(mpr)+'</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) MOD+Energía</span><span class="vl" style="color:var(--t2)">USD '+fd(c.mod)+'</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Impuestos ('+gp('pIMP')+'%)</span><span class="vl" style="color:var(--t2)">USD '+fd(c.imp)+'</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Flete</span><span class="vl" style="color:var(--t2)">USD '+fd(c.fl)+'</span></div>';
-  h+='<div style="border-top:2px solid var(--bd);margin:6px 0"></div>';
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-weight:700">= CMG</span><span class="vl" style="color:'+(c.cmg>=0?'var(--gn)':'var(--rd)')+';font-size:15px">USD '+fd(c.cmg)+' /kg</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Gastos Fijos</span><span class="vl warn">USD '+fd(gf)+'</span></div>';
-  h+='<div style="border-top:3px solid var(--ac);margin:6px 0"></div>';
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-weight:700;font-size:14px">= EBITDA</span><span class="vl" style="color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+';font-size:18px">USD '+fd(c.ebitda)+' /kg</span></div>';
-  h+='<div style="border-top:1px solid var(--bd);margin:6px 0"></div>';
-  h+='<div class="sr"><span class="lb">Volumen anual</span><span class="vl">'+fmt(c.v)+' kg</span></div>';
-  h+='<div class="sr"><span class="lb">Revenue anual</span><span class="vl">USD '+fmt(c.rev)+'</span></div>';
-  h+='<div class="sr"><span class="lb">EBITDA anual</span><span class="vl" style="color:'+(c.ebitdaAbs>=0?'var(--gn)':'var(--rd)')+'">USD '+(c.ebitdaAbs<0?'-':'')+fmt(c.ebitdaAbs)+'</span></div>';
-  if(c.ebitda<0)h+='<div style="margin-top:8px;padding:8px;background:rgba(255,77,106,.1);border-radius:6px;font-size:11px;color:var(--rd)">Para breakeven: USD '+fd(c.pv-c.ebitda)+'/kg (+'+fd(Math.abs(c.ebitda))+')</div>';
-  h+='</div>';
-  document.getElementById("u-det").innerHTML=h;
+function loadGastos(file){
+  if(!file)return;var reader=new FileReader();
+  reader.onload=function(e){try{
+    var wb=XLSX.read(e.target.result,{type:'array',cellFormula:false});var ws=wb.Sheets[wb.SheetNames[0]];var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:0,raw:true});
+    var hdrs=rows[0].map(function(h){return String(h||'').toLowerCase().trim()});var cm={};
+    hdrs.forEach(function(h,i){if(h.includes('concepto'))cm.concepto=i;else if(h.includes('nombre'))cm.nombre=i;else if(h.includes('posici'))cm.posicion=i;else if(h.includes('empresa'))cm.empresa=i;else if(h.includes('bruto'))cm.bruto=i;else if(h.includes('factor'))cm.factor=i;else if(h.includes('costo final'))cm.costoFinal=i;else if(h.includes('cdir')&&h.includes('recsa'))cm.cdirR=i;else if(h.includes('fijo')&&h.includes('recsa'))cm.fijoR=i;else if(h.includes('log')&&h.includes('recsa'))cm.logisR=i;else if(h.includes('back')&&h.includes('recsa'))cm.backR=i;else if(h.includes('cdir')&&h.includes('vivalce'))cm.cdirV=i;else if(h.includes('fijo')&&h.includes('vivalce'))cm.fijoV=i;else if(h.includes('log')&&h.includes('vivalce'))cm.logisV=i;else if(h.includes('back')&&h.includes('vivalce'))cm.backV=i;});
+    G=[];for(var r=1;r<rows.length;r++){var row=rows[r];var concepto=String(row[cm.concepto]||'').trim();var nombre=String(row[cm.nombre]||'').trim();if(!concepto&&!nombre)continue;if(concepto==='RESUMEN'||concepto==='Total')continue;
+    var bruto=parseFloat(row[cm.bruto])||0;var factor=parseFloat(row[cm.factor])||0;var cf=parseFloat(row[cm.costoFinal]);if(isNaN(cf)||cf===0)cf=factor===0?bruto:bruto*(1+factor);if(cf===0)continue;
+    var pf=function(v){var n=parseFloat(v);return isNaN(n)?0:n};
+    G.push({concepto:concepto,nombre:nombre,posicion:String(row[cm.posicion]||'').trim(),empresa:String(row[cm.empresa]||'').trim(),costo_final:cf,pct_cdir_r:pf(row[cm.cdirR]),pct_fijo_r:pf(row[cm.fijoR]),pct_logis_r:pf(row[cm.logisR]),pct_back_r:pf(row[cm.backR]),pct_cdir_v:pf(row[cm.cdirV]),pct_fijo_v:pf(row[cm.fijoV]),pct_logis_v:pf(row[cm.logisV]),pct_back_v:pf(row[cm.backV])});}
+    G.forEach(function(g,i){GA[i]={cdir_r:g.pct_cdir_r,fijo_r:g.pct_fijo_r,logis_r:g.pct_logis_r,back_r:g.pct_back_r,cdir_v:g.pct_cdir_v,fijo_v:g.pct_fijo_v,logis_v:g.pct_logis_v,back_v:g.pct_back_v};});
+    renderGastos();
+  }catch(err){alert('Error: '+err.message);}};reader.readAsArrayBuffer(file);
 }
 
-function loadExcel(file){
-  if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var wb=XLSX.read(e.target.result,{type:'array'});
-      var ws=wb.Sheets[wb.SheetNames[0]];
-      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:0,raw:true});
-      if(rows.length<2)throw new Error('Archivo vacío');
-      var hdrs=rows[0].map(function(h){return String(h||'').toLowerCase().trim()});
-      var cm={};
-      hdrs.forEach(function(h,i){
-        if(h.includes('línea')||h.includes('linea'))cm.l=i;
-        else if(h.includes('producto'))cm.p=i;
-        else if(h.includes('precio'))cm.pv=i;
-        else if(h.includes('mp+me')||h.includes('mp y envase')||h.includes('mp_me'))cm.mp=i;
-        else if(h.includes('rendimiento'))cm.r=i;
-        else if(h.includes('vol'))cm.v=i;
-        else if(h.includes('mod'))cm.mod=i;
-        else if(h.includes('amort'))cm.am=i;
-        else if(h.includes('cf inv')||h.includes('costo fin'))cm.cfi=i;
-      });
-      var newP=[];
-      for(var r=1;r<rows.length;r++){
-        var row=rows[r];
-        var prod=String(row[cm.p]||'').trim();
-        if(!prod)continue;
-        var pf=function(v){var n=parseFloat(v);return isNaN(n)?0:Math.abs(n)};
-        newP.push({l:String(row[cm.l]||'').trim(),p:prod,pv:pf(row[cm.pv]),mp:pf(row[cm.mp]),r:pf(row[cm.r])||1,v:pf(row[cm.v]),mod:cm.mod!==undefined?pf(row[cm.mod]):gp('pMOD'),am:cm.am!==undefined?pf(row[cm.am]):0,ifin:0,cfi:cm.cfi!==undefined?pf(row[cm.cfi]):0,imp:0,fl:0});
-      }
-      if(newP.length>0){P=newP;document.getElementById('dataSource').textContent='Excel cargado: '+file.name+' ('+newP.length+' productos)';document.getElementById('dataSource').style.color='var(--gn)';renderContent();}
-    }catch(err){alert('Error: '+err.message);}
-  };
-  reader.readAsArrayBuffer(file);
+// ===== LOAD MASTER EXCEL =====
+function loadMaster(file){
+  if(!file)return;var reader=new FileReader();
+  reader.onload=function(e){try{
+    var wb=XLSX.read(e.target.result,{type:'array'});var ws=wb.Sheets[wb.SheetNames[0]];var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:0,raw:true});
+    var hdrs=rows[0].map(function(h){return String(h||'').toLowerCase().trim()});var cm={};
+    hdrs.forEach(function(h,i){if(h.includes('línea')||h.includes('linea'))cm.l=i;else if(h.includes('producto'))cm.p=i;else if(h.includes('precio'))cm.pv=i;else if(h.includes('mp'))cm.mp=i;else if(h.includes('rendimiento'))cm.r=i;else if(h.includes('vol'))cm.v=i;else if(h.includes('origen'))cm.o=i;else if(h.includes('lead'))cm.lt=i;else if(h.includes('stock seg')||h.includes('seguridad'))cm.ss=i;});
+    var newP=[];for(var r=1;r<rows.length;r++){var row=rows[r];var prod=String(row[cm.p]||'').trim();if(!prod)continue;var pf=function(v){var n=parseFloat(v);return isNaN(n)?0:Math.abs(n)};
+    newP.push({l:String(row[cm.l]||'').trim(),p:prod,pv:pf(row[cm.pv]),mp:pf(row[cm.mp]),r:pf(row[cm.r])||1,v:pf(row[cm.v]),am:0,ifin:0,o:cm.o!==undefined?String(row[cm.o]||'').trim():'LOCAL',lt:cm.lt!==undefined?Math.round(pf(row[cm.lt]))||30:30,ss:cm.ss!==undefined?Math.round(pf(row[cm.ss]))||15:15});}
+    if(newP.length>0){P=newP;document.getElementById('dataSource').textContent='Excel: '+file.name+' ('+newP.length+')';document.getElementById('dataSource').style.color='var(--gn)';renderContent();}
+  }catch(err){alert('Error: '+err.message);}};reader.readAsArrayBuffer(file);
 }
 
+// ===== EXPORT =====
 function exportCSV(){
-  var all=calcAll();var gf=gp('pGF');
-  var csv='Línea,Producto,Precio,MP+ME,Rendimiento,MP/R,MOD,Imp,Flete,CMG,CMG%,GF,EBITDA,EBITDA%,Vol,Revenue,EBITDA Total\n';
-  for(var i=0;i<all.length;i++){var c=all[i];csv+='"'+c.l+'","'+c.p+'",'+fd(c.pv)+','+c.mp.toFixed(4)+','+c.r+','+(c.mp/c.r).toFixed(4)+','+fd(c.mod)+','+fd(c.imp)+','+fd(c.fl)+','+fd(c.cmg)+','+(c.cmgPct*100).toFixed(1)+','+fd(gf)+','+fd(c.ebitda)+','+(c.ebitdaPct*100).toFixed(1)+','+c.v+','+c.rev.toFixed(0)+','+c.ebitdaAbs.toFixed(0)+'\n';}
+  var all=calcAllPL();var gf=gp('pGF');
+  var csv='Línea,Producto,Precio,MP,Rend,MP/R,MOD,Imp,Flete,CMG,CMG%,GF,EBITDA,EBITDA%,Vol,Revenue,EBITDA Total,CF Inv\n';
+  for(var i=0;i<all.length;i++){var c=all[i];csv+='"'+c.l+'","'+c.p+'",'+fd(c.pv)+','+c.mp.toFixed(4)+','+c.r+','+(c.mp/c.r).toFixed(4)+','+fd(c.mod)+','+fd(c.imp)+','+fd(c.fl)+','+fd(c.cmg)+','+(c.cmgPct*100).toFixed(1)+','+fd(gf)+','+fd(c.ebitda)+','+(c.ebitdaPct*100).toFixed(1)+','+c.v+','+c.rev.toFixed(0)+','+c.ebitdaAbs.toFixed(0)+','+c.cfi.toFixed(4)+'\n';}
   var b=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='RECSA_PL_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
+// ===== INIT =====
 renderTabs();renderContent();
 </script>
 </body>
