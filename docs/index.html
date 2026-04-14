@@ -80,14 +80,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 <div class="params-bar">
   <div><label>TC USD/ARS</label><br><input type="number" id="pTC" value="1490" onchange="recalcAll()"></div>
   <div><label>Vol Mensual kg</label><br><input type="number" id="pVol" value="29379" onchange="recalcAll()"></div>
-  <div class="sep"></div>
-  <div><label>GF USD/kg</label><br><input type="number" id="pGF" value="1.1547" step="0.01" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Asig. Gastos</div></div>
-  <div><label>MOD+E+L USD/kg</label><br><input type="number" id="pMOD" value="0.5945" step="0.01" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Asig. Gastos</div></div>
   <div><label>Flete USD/kg</label><br><input type="number" id="pFL" value="0.20" step="0.01" onchange="recalcAll()"></div>
-  <div class="sep"></div>
   <div><label>Imp %</label><br><input type="number" id="pIMP" value="5.812" step="0.1" onchange="recalcAll()"></div>
-  <div><label>Financieros</label><br><input type="number" id="pFIN" value="0.4768" step="0.01" onchange="recalcAll()"></div>
   <div><label>TNA %</label><br><input type="number" id="pTNA" value="35" step="1" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Inventario</div></div>
+  <div class="sep"></div>
+  <div style="opacity:0.5"><label>GF USD/kg</label><br><span class="mono" id="pGFdisplay" style="font-size:12px;color:var(--pu)">1.1547</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
+  <div style="opacity:0.5"><label>MOD+E+L</label><br><span class="mono" id="pMODdisplay" style="font-size:12px;color:var(--pu)">0.5945</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
+  <input type="hidden" id="pGF" value="1.1547">
+  <input type="hidden" id="pMOD" value="0.5945">
+  <input type="hidden" id="pFIN" value="0.4768">
 </div>
 <div class="tabs" id="tabs"></div>
 <div class="content" id="content"></div>
@@ -362,6 +363,8 @@ function renderGastos(){
   var newMOD=(Math.abs(r.cdir)+Math.abs(r.logis))/tc/volR;
   document.getElementById('pGF').value=newGF.toFixed(4);
   document.getElementById('pMOD').value=newMOD.toFixed(4);
+  if(document.getElementById('pGFdisplay'))document.getElementById('pGFdisplay').textContent=newGF.toFixed(4);
+  if(document.getElementById('pMODdisplay'))document.getElementById('pMODdisplay').textContent=newMOD.toFixed(4);
 
   var fmtG=function(n){return Math.abs(n).toLocaleString('es-AR',{maximumFractionDigits:0})};
   var h='<div class="kpis" style="grid-template-columns:repeat(6,1fr)">';
