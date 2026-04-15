@@ -248,7 +248,7 @@ function renderPricing(){
   for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
   h+='</select><select id="pr-st" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todos</option><option value="BAJO">< Breakeven</option><option value="OK">≥ Breakeven</option></select>';
   h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1">';
-  h+='<button class="btn-sm" style="background:var(--rd);color:#fff;border-color:var(--rd);font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button><button class="btn-sm" style="background:var(--gn);color:#000;border-color:var(--gn);font-weight:600" onclick="exportVentasPDF()">📄 PDF Ventas</button></div>';
+  h+='<button class="btn-sm" style="background:#87CEEB;color:#000;border-color:#87CEEB;font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button><button class="btn-sm" style="background:var(--gn);color:#000;border-color:var(--gn);font-weight:600" onclick="exportVentasPDF()">📄 PDF Ventas</button></div>';
   h+='<div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
   var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=((c.mp/c.r)+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
   var kh='<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">';
