@@ -243,7 +243,7 @@ function doFP(){
 function renderPricing(){
   var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
   var lineSet={};for(var i=0;i<P.length;i++)lineSet[P[i].l]=1;var lks=Object.keys(lineSet).sort();
-  var h='<div class="card full"><h3>Pricing Estratégico — Breakeven, +10%, +20%</h3><p style="color:var(--t2);font-size:11px;margin-bottom:12px">Precio mínimo (EBITDA=0), conservador (+10%) y target (+20%)</p>';
+  var h='<div class="card full"><h3>Pricing Estratégico — CMG 15%, Breakeven, +20%</h3><p style="color:var(--t2);font-size:11px;margin-bottom:12px">CMG 15% (margen contribución) | Breakeven (EBITDA=0) | +20% sobre Breakeven</p>';
   h+='<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap"><select id="pr-l" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option>';
   for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
   h+='</select><select id="pr-st" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todos</option><option value="BAJO">< Breakeven</option><option value="OK">≥ Breakeven</option></select>';
@@ -262,12 +262,12 @@ function doFPR(){
   var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
   var items=[];for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;if(fl_v!=="ALL"&&c.l!==fl_v)continue;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)continue;
   var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);if(st==="BAJO"&&c.pv>=pBE)continue;if(st==="OK"&&c.pv<pBE)continue;
-  var p10=pBE*1.10;var p20=pBE*1.20;var e10=p10-(c.mp/c.r)-mod-p10*impPct-fl-gf;var e20=p20-(c.mp/c.r)-mod-p20*impPct-fl-gf;
-  items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,p10:p10,e10:e10,p20:p20,e20:e20,gap:c.pv-pBE,v:c.v});}
+  var pCMG15=((c.mp/c.r)+mod+fl)/(1-impPct-0.15);var cmg15=pCMG15-(c.mp/c.r)-mod-pCMG15*impPct-fl;var p20=pBE*1.20;var e20=p20-(c.mp/c.r)-mod-p20*impPct-fl-gf;
+  items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,pCMG15:pCMG15,cmg15:cmg15,p20:p20,e20:e20,gap:c.pv-pBE,v:c.v});}
   items.sort(function(a,b){return a.gap-b.gap});
-  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">P.Actual</th><th style="text-align:right">EBITDA Act</th><th style="text-align:right;color:var(--or)">Breakeven</th><th style="text-align:right;color:var(--ac)">P.+10%</th><th style="text-align:right;color:var(--ac)">EBITDA+10%</th><th style="text-align:right;color:var(--gn)">P.+20%</th><th style="text-align:right;color:var(--gn)">EBITDA+20%</th><th style="text-align:right">Gap</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
-  for(var i=0;i<items.length;i++){var c=items[i];var gc=c.gap>=0?'var(--gn)':'var(--rd)';var tag=c.gap>=c.pBE*0.2?'<span class="tag tag-ok">≥+20%</span>':c.gap>=c.pBE*0.1?'<span class="tag tag-ok">≥+10%</span>':c.gap>=0?'<span class="tag tag-warn">≥BE</span>':'<span class="tag tag-bad">BAJO</span>';var rb=c.gap<0?'background:rgba(255,77,106,.04);':'';
-  h+='<tr style="'+rb+'"><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right;color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.ebitda)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pBE)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.p10)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.e10)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e20)+'</td><td class="mono" style="text-align:right;color:'+gc+'">'+(c.gap>=0?'+':'')+fd(c.gap)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
+  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">P.Actual</th><th style="text-align:right">EBITDA Act</th><th style="text-align:right;color:var(--or)">Breakeven</th><th style="text-align:right;color:var(--ac)">P.CMG15%</th><th style="text-align:right;color:var(--ac)">CMG 15%</th><th style="text-align:right;color:var(--gn)">P.+20%</th><th style="text-align:right;color:var(--gn)">EBITDA+20%</th><th style="text-align:right">Gap</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
+  for(var i=0;i<items.length;i++){var c=items[i];var gc=c.gap>=0?'var(--gn)':'var(--rd)';var tag=c.gap>=c.pBE*0.2?'<span class="tag tag-ok">≥+20%</span>':c.pv>=c.pCMG15?'<span class="tag tag-ok">≥CMG15</span>':c.gap>=0?'<span class="tag tag-warn">≥BE</span>':'<span class="tag tag-bad">BAJO</span>';var rb=c.gap<0?'background:rgba(255,77,106,.04);':'';
+  h+='<tr style="'+rb+'"><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right;color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.ebitda)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pBE)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.pCMG15)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.cmg15)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e20)+'</td><td class="mono" style="text-align:right;color:'+gc+'">'+(c.gap>=0?'+':'')+fd(c.gap)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
   h+='</tbody></table>';document.getElementById("pr-tbl").innerHTML=h;
 }
 
@@ -448,7 +448,8 @@ function exportPricingPDF(){
   var items=[];
   for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
     var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);
-    items.push({l:c.l,p:c.p,pBE:pBE,p10:pBE*1.10,p20:pBE*1.20});
+    var pCMG15=((c.mp/c.r)+mod+fl)/(1-impPct-0.15);
+    items.push({l:c.l,p:c.p,pCMG15:pCMG15,pBE:pBE,p20:pBE*1.20});
   }
   items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
   var doc=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
@@ -457,19 +458,19 @@ function exportPricingPDF(){
   doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(79,140,255);
   doc.text('RECSA',14,16);doc.setTextColor(232,236,244);doc.text(' \u2014 Lista de Precios',14+doc.getTextWidth('RECSA'),16);
   doc.setFontSize(10);doc.setTextColor(136,153,180);
-  doc.text('3 escenarios: Breakeven | +10% | +20%',14,26);
+  doc.text('3 escenarios: CMG 15% | Breakeven | +20%',14,26);
   doc.text(new Date().toLocaleDateString('es-AR'),pageW-14,26,{align:'right'});
-  var tBody=items.map(function(c){return[c.l,c.p,'USD '+c.pBE.toFixed(2),'USD '+c.p10.toFixed(2),'USD '+c.p20.toFixed(2)];});
+  var tBody=items.map(function(c){return[c.l,c.p,'USD '+c.pCMG15.toFixed(2),'USD '+c.pBE.toFixed(2),'USD '+c.p20.toFixed(2)];});
   doc.autoTable({startY:38,
-    head:[['L\u00ednea','Producto','Precio Breakeven','Precio +10%','Precio +20%']],
+    head:[['L\u00ednea','Producto','Precio CMG 15%','Precio Breakeven','Precio +20%']],
     body:tBody,theme:'grid',
     styles:{fontSize:9,cellPadding:3,font:'helvetica'},
     headStyles:{fillColor:[26,34,53],textColor:[232,236,244],fontStyle:'bold',fontSize:9},
     columnStyles:{
       0:{cellWidth:35},
       1:{cellWidth:65},
-      2:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[255,184,77]},
-      3:{halign:'right',cellWidth:30,textColor:[79,140,255]},
+      2:{halign:'right',cellWidth:30,textColor:[79,140,255]},
+      3:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[255,184,77]},
       4:{halign:'right',cellWidth:30,textColor:[0,160,130]}
     },
     alternateRowStyles:{fillColor:[245,247,250]},
