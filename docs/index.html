@@ -248,7 +248,7 @@ function renderPricing(){
   for(var i=0;i<lks.length;i++)h+='<option>'+lks[i]+'</option>';
   h+='</select><select id="pr-st" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todos</option><option value="BAJO">< Breakeven</option><option value="OK">≥ Breakeven</option></select>';
   h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1">';
-  h+='<button class="btn-sm" style="background:var(--rd);color:#fff;border-color:var(--rd);font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button></div>';
+  h+='<button class="btn-sm" style="background:var(--rd);color:#fff;border-color:var(--rd);font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button><button class="btn-sm" style="background:var(--gn);color:#000;border-color:var(--gn);font-weight:600" onclick="exportVentasPDF()">📄 PDF Ventas</button></div>';
   h+='<div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
   var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=((c.mp/c.r)+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
   var kh='<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">';
@@ -443,6 +443,43 @@ function exportCSV(){
 }
 
 // ===== PDF EXPORT =====
+function exportVentasPDF(){
+  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var items=[];
+  for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
+    var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);
+    items.push({l:c.l,p:c.p,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
+  }
+  items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
+  var doc=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var pageW=doc.internal.pageSize.getWidth();
+  doc.setFillColor(26,34,53);doc.rect(0,0,pageW,32,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(79,140,255);
+  doc.text('RECSA',14,16);doc.setTextColor(232,236,244);doc.text(' \u2014 Lista de Precios Venta',14+doc.getTextWidth('RECSA'),16);
+  doc.setFontSize(10);doc.setTextColor(136,153,180);
+  doc.text('Breakeven | +20% | +30% | +40%',14,26);
+  doc.text(new Date().toLocaleDateString('es-AR'),pageW-14,26,{align:'right'});
+  var tBody=items.map(function(c){return[c.l,c.p,'USD '+c.pBE.toFixed(2),'USD '+c.p20.toFixed(2),'USD '+c.p30.toFixed(2),'USD '+c.p40.toFixed(2)];});
+  doc.autoTable({startY:38,
+    head:[['L\u00ednea','Producto','Breakeven','Precio +20%','Precio +30%','Precio +40%']],
+    body:tBody,theme:'grid',
+    styles:{fontSize:9,cellPadding:3,font:'helvetica'},
+    headStyles:{fillColor:[26,34,53],textColor:[232,236,244],fontStyle:'bold',fontSize:9},
+    columnStyles:{
+      0:{cellWidth:30},
+      1:{cellWidth:55},
+      2:{halign:'right',cellWidth:25,fontStyle:'bold',textColor:[255,184,77]},
+      3:{halign:'right',cellWidth:25,textColor:[0,160,130]},
+      4:{halign:'right',cellWidth:25,textColor:[0,160,130]},
+      5:{halign:'right',cellWidth:25,textColor:[0,160,130]}
+    },
+    alternateRowStyles:{fillColor:[245,247,250]},
+    margin:{left:14,right:14}
+  });
+  var pc=doc.internal.getNumberOfPages();for(var p=1;p<=pc;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(150);doc.text('RECSA \u2014 Lista de Precios Venta \u00b7 '+new Date().toLocaleString('es-AR')+' \u00b7 P\u00e1gina '+p+'/'+pc,pageW/2,doc.internal.pageSize.getHeight()-5,{align:'center'});}
+  doc.save('RECSA_Precios_Venta_'+new Date().toISOString().slice(0,10)+'.pdf');
+}
+
 function exportPricingPDF(){
   var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
   var items=[];
