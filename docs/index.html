@@ -102,7 +102,10 @@ function restoreGastosPersisted(){
     var savedGF=localStorage.getItem('recsa_pGF');
     var savedMOD=localStorage.getItem('recsa_pMOD');
     var savedFecha=localStorage.getItem('recsa_gastos_fecha');
-    if(savedGF&&savedMOD){
+    var gfNum=parseFloat(savedGF);
+    var modNum=parseFloat(savedMOD);
+    // Solo restaurar si AMBOS son números válidos y POSITIVOS (no ceros, no NaN)
+    if(savedGF&&savedMOD&&!isNaN(gfNum)&&!isNaN(modNum)&&gfNum>0&&modNum>0){
       var gfEl=document.getElementById('pGF');
       var modEl=document.getElementById('pMOD');
       if(gfEl)gfEl.value=savedGF;
@@ -112,6 +115,11 @@ function restoreGastosPersisted(){
       if(gfd)gfd.textContent=savedGF;
       if(modd)modd.textContent=savedMOD;
       return savedFecha;
+    } else if(savedGF!==null||savedMOD!==null){
+      // Auto-purga: hay basura guardada (valores 0, vacíos o inválidos) → limpiar
+      localStorage.removeItem('recsa_pGF');
+      localStorage.removeItem('recsa_pMOD');
+      localStorage.removeItem('recsa_gastos_fecha');
     }
   }catch(e){}
   return null;
@@ -121,10 +129,7 @@ function clearGastosPersisted(){
     localStorage.removeItem('recsa_pGF');
     localStorage.removeItem('recsa_pMOD');
     localStorage.removeItem('recsa_gastos_fecha');
-    var gfEl=document.getElementById('pGF');
-    var modEl=document.getElementById('pMOD');
-    if(gfEl)gfEl.value='0';
-    if(modEl)modEl.value='0';
+    // No tocar pGF/pMOD en el DOM aquí: location.reload() los volverá a su valor default del HTML
     alert('Valores de gastos eliminados. Cargá un archivo nuevo.');
     location.reload();
   }catch(e){alert('Error al limpiar: '+e.message);}
@@ -819,15 +824,16 @@ function renderGastos(){
   G.forEach(function(g,i){var cf=g.costo_final,a=GA[i];var sum=a.cdir_r+a.fijo_r+a.logis_r+a.back_r+a.cdir_v+a.fijo_v+a.logis_v+a.back_v;r.cdir+=cf*a.cdir_r;r.fijo+=cf*a.fijo_r;r.logis+=cf*a.logis_r;r.back+=cf*a.back_r;v.cdir+=cf*a.cdir_v;v.fijo+=cf*a.fijo_v;v.logis+=cf*a.logis_v;v.back+=cf*a.back_v;totalCost+=cf;if(Math.abs(sum)<.01&&cf!==0)unassigned++;});
   r.total=r.cdir+r.fijo+r.logis+r.back;v.total=v.cdir+v.fijo+v.logis+v.back;
   var rPerKg=Math.abs(r.total)/tc/volR;var vPerKg=Math.abs(v.total)/tc/volV;
-  // Auto-update P&L params
+  // Auto-update P&L params (SOLO si hay datos reales; nunca persistir ceros)
   var newGF=(Math.abs(r.fijo)+Math.abs(r.back))/tc/volR;
   var newMOD=(Math.abs(r.cdir)+Math.abs(r.logis))/tc/volR;
-  document.getElementById('pGF').value=newGF.toFixed(4);
-  document.getElementById('pMOD').value=newMOD.toFixed(4);
-  if(document.getElementById('pGFdisplay'))document.getElementById('pGFdisplay').textContent=newGF.toFixed(4);
-  if(document.getElementById('pMODdisplay'))document.getElementById('pMODdisplay').textContent=newMOD.toFixed(4);
-  // Persistir en localStorage para próximas sesiones
-  try{localStorage.setItem('recsa_pGF',newGF.toFixed(4));localStorage.setItem('recsa_pMOD',newMOD.toFixed(4));localStorage.setItem('recsa_gastos_fecha',new Date().toISOString());}catch(e){}
+  if(G.length>0&&Math.abs(totalCost)>0&&newGF>0&&newMOD>0){
+    document.getElementById('pGF').value=newGF.toFixed(4);
+    document.getElementById('pMOD').value=newMOD.toFixed(4);
+    if(document.getElementById('pGFdisplay'))document.getElementById('pGFdisplay').textContent=newGF.toFixed(4);
+    if(document.getElementById('pMODdisplay'))document.getElementById('pMODdisplay').textContent=newMOD.toFixed(4);
+    try{localStorage.setItem('recsa_pGF',newGF.toFixed(4));localStorage.setItem('recsa_pMOD',newMOD.toFixed(4));localStorage.setItem('recsa_gastos_fecha',new Date().toISOString());}catch(e){}
+  }
 
   var fmtG=function(n){return Math.abs(n).toLocaleString('es-AR',{maximumFractionDigits:0})};
   var h='<div class="kpis" style="grid-template-columns:repeat(6,1fr)">';
