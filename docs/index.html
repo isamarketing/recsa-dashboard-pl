@@ -83,14 +83,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
   <div><label>TC USD/ARS</label><br><input type="number" id="pTC" value="1420" onchange="recalcAll()"></div>
   <div style="opacity:0.5"><label>Vol Mensual kg</label><br><span class="mono" id="pVoldisplay" style="font-size:12px;color:var(--pu)">28508</span><div style="font-size:8px;color:var(--pu)">← Suma de productos</div></div>
   <div><label>Flete USD/kg</label><br><input type="number" id="pFL" value="0.20" step="0.01" onchange="recalcAll()"></div>
-  <div><label>Imp %</label><br><input type="number" id="pIMP" value="5.812" step="0.1" onchange="recalcAll()"></div>
+  <div><label>Imp %</label><br><input type="number" id="pIMP" value="7.0" step="0.1" onchange="recalcAll()"></div>
   <div><label>TNA %</label><br><input type="number" id="pTNA" value="35" step="1" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Inventario</div></div>
   <div class="sep"></div>
-  <div style="opacity:0.5"><label>GF USD/kg</label><br><span class="mono" id="pGFdisplay" style="font-size:12px;color:var(--pu)">1.3620</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
-  <div style="opacity:0.5"><label>MOD+E+L</label><br><span class="mono" id="pMODdisplay" style="font-size:12px;color:var(--pu)">0.5945</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
-  <input type="hidden" id="pGF" value="1.3620">
-  <input type="hidden" id="pMOD" value="0.5945">
-  <input type="hidden" id="pFIN" value="0.4768">
+  <div style="opacity:0.5"><label>GF USD/kg</label><br><span class="mono" id="pGFdisplay" style="font-size:12px;color:var(--pu)">0.8999</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
+  <div style="opacity:0.5"><label>Back Office</label><br><span class="mono" id="pBACKdisplay" style="font-size:12px;color:var(--pu)">0.1838</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
+  <div style="opacity:0.5"><label>MOD+E+L</label><br><span class="mono" id="pMODdisplay" style="font-size:12px;color:var(--pu)">0.5250</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
+  <input type="hidden" id="pGF" value="0.8999">
+  <input type="hidden" id="pBACK" value="0.1838">
+  <input type="hidden" id="pMOD" value="0.5250">
+  <input type="hidden" id="pFIN" value="0.4559">
+  <input type="hidden" id="pOTROSIMP" value="0.0815">
   <input type="hidden" id="pVol" value="28508">
 </div>
 <div class="tabs" id="tabs"></div>
@@ -123,6 +126,7 @@ function restoreGastosPersisted(){
   try{
     var savedGF=localStorage.getItem('recsa_pGF');
     var savedMOD=localStorage.getItem('recsa_pMOD');
+    var savedBACK=localStorage.getItem('recsa_pBACK');
     var savedFecha=localStorage.getItem('recsa_gastos_fecha');
     var gfNum=parseFloat(savedGF);
     var modNum=parseFloat(savedMOD);
@@ -136,11 +140,20 @@ function restoreGastosPersisted(){
       var modd=document.getElementById('pMODdisplay');
       if(gfd)gfd.textContent=savedGF;
       if(modd)modd.textContent=savedMOD;
+      // Back Office (si fue persistido)
+      var backNum=parseFloat(savedBACK);
+      if(savedBACK&&!isNaN(backNum)&&backNum>0){
+        var backEl=document.getElementById('pBACK');
+        if(backEl)backEl.value=savedBACK;
+        var backd=document.getElementById('pBACKdisplay');
+        if(backd)backd.textContent=savedBACK;
+      }
       return savedFecha;
     } else if(savedGF!==null||savedMOD!==null){
       // Auto-purga: hay basura guardada (valores 0, vacíos o inválidos) → limpiar
       localStorage.removeItem('recsa_pGF');
       localStorage.removeItem('recsa_pMOD');
+      localStorage.removeItem('recsa_pBACK');
       localStorage.removeItem('recsa_gastos_fecha');
     }
   }catch(e){}
@@ -183,14 +196,29 @@ var tabNames=[
 function gp(id){return parseFloat(document.getElementById(id).value)||0}
 
 // ===== P&L CALCULATIONS =====
+// HELPERS ÚNICOS — fuente de verdad de las fórmulas (evitan duplicación entre tabs)
+// IMPORTANTE: el mp del array P (de "COSTOS MP Y ENVASE") YA incluye el rendimiento,
+// por eso NO se divide por r. El campo r queda como informativo.
+function getMPME(p){ return p.mp; }                 // costo insumo (ya incluye rendimiento)
+function getCostoVar(){                              // costos variables fijos por kg (sin insumo ni imp)
+  return gp('pMOD')+gp('pFL');                       // MOD+Energía+Logística + Flete
+}
+function getCostoBase(p){                            // costo total variable de un producto (sin impuestos)
+  return getMPME(p)+gp('pMOD')+gp('pFL');
+}
+function getGastosFijosKg(){ return gp('pGF')+gp('pBACK'); }  // Fijos + Back Office
+function getEbitdaUnit(pv,p,gfKg){                   // EBITDA/kg dado un precio y un GF/kg
+  var imp=pv*(gp('pIMP')/100);
+  return pv-getMPME(p)-gp('pMOD')-imp-gp('pFL')-gfKg;
+}
 function calcPL(p){
   var pv=p.pv, mp=p.mp, r=p.r||1;
-  var mod=gp('pMOD'), fl=gp('pFL'), gf=gp('pGF');
+  var mod=gp('pMOD'), fl=gp('pFL'), gf=gp('pGF'), back=gp('pBACK');
   var impPct=gp('pIMP')/100;
   var imp=pv*impPct;
-  var cmg=pv-mp/r-mod-imp-fl;
+  var cmg=pv-getMPME(p)-mod-imp-fl;       // SIN /r (mp ya incluye rendimiento)
   var cmgPct=pv>0?cmg/pv:0;
-  var ebitda=cmg-gf;
+  var ebitda=cmg-gf-back;                 // Gastos Fijos + Back Office separados
   var ebitdaPct=pv>0?ebitda/pv:0;
   var am=p.am||0;
   var ebit=ebitda-am;
@@ -201,11 +229,12 @@ function calcPL(p){
   var su=sk*mp;
   var cfi=p.v>0?(su*tna)/(p.v*365)*sd:0;
   var ifin=gp('pFIN');
-  var rai=ebit-ifin-cfi;
+  var otrosImp=gp('pOTROSIMP');
+  var rai=ebit-ifin-cfi-otrosImp;         // Otros Impuestos agregado
   var rev=pv*p.v;
   var ebitdaAbs=ebitda*p.v;
   var cmgAbs=cmg*p.v;
-  return {pv:pv,mp:mp,r:r,mod:mod,imp:imp,fl:fl,cmg:cmg,cmgPct:cmgPct,gf:gf,ebitda:ebitda,ebitdaPct:ebitdaPct,am:am,ebit:ebit,ifin:ifin,cfi:cfi,rai:rai,rev:rev,ebitdaAbs:ebitdaAbs,cmgAbs:cmgAbs,v:p.v,l:p.l,p:p.p,o:p.o,lt:p.lt,ss:p.ss};
+  return {pv:pv,mp:mp,r:r,mod:mod,imp:imp,fl:fl,cmg:cmg,cmgPct:cmgPct,gf:gf,back:back,ebitda:ebitda,ebitdaPct:ebitdaPct,am:am,ebit:ebit,ifin:ifin,cfi:cfi,otrosImp:otrosImp,rai:rai,rev:rev,ebitdaAbs:ebitdaAbs,cmgAbs:cmgAbs,v:p.v,l:p.l,p:p.p,o:p.o,lt:p.lt,ss:p.ss};
 }
 function calcAllPL(){var r=[];for(var i=0;i<P.length;i++)r.push(calcPL(P[i]));return r;}
 function totalsPL(items){var rev=0,ebitda=0,cmg=0,vol=0,np=0,nn=0;for(var i=0;i<items.length;i++){var c=items[i];rev+=c.rev;ebitda+=c.ebitdaAbs;cmg+=c.cmgAbs;vol+=c.v;if(c.ebitda>0)np++;else nn++;}return{rev:rev,ebitda:ebitda,cmg:cmg,vol:vol,margin:rev>0?(ebitda/rev*100).toFixed(1):'0',cmgMargin:rev>0?(cmg/rev*100).toFixed(1):'0',n:items.length,np:np,nn:nn};}
@@ -243,7 +272,7 @@ function renderContent(){
 
 // ===== TAB: RESUMEN =====
 function renderResumen(){
-  var all=calcAllPL();var t=totalsPL(all);var gf=gp('pGF');
+  var all=calcAllPL();var t=totalsPL(all);var gf=gp('pGF')+gp('pBACK');
   var h='<div class="kpis">';
   h+='<div class="kpi"><div class="lb">Revenue Anual</div><div class="vl">USD '+fmt(t.rev)+'</div><div class="delta">'+t.n+' productos</div></div>';
   h+='<div class="kpi"><div class="lb">CMG Anual</div><div class="vl" style="color:'+(t.cmg>=0?'var(--gn)':'var(--rd)')+'">USD '+fmt(t.cmg)+'</div><div class="delta">'+t.cmgMargin+'%</div></div>';
@@ -306,7 +335,7 @@ function doFP(){
 
 // ===== TAB: PRICING ESTRATEGICO =====
 function renderPricing(){
-  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF')+gp('pBACK'),impPct=gp('pIMP')/100;
   var lineSet={};for(var i=0;i<P.length;i++)lineSet[P[i].l]=1;var lks=Object.keys(lineSet).sort();
   var h='<div class="card full"><h3>Pricing Estratégico</h3><p style="color:var(--t2);font-size:11px;margin-bottom:12px">CMG 15% | Breakeven (EBITDA=0) | +20% | +30% | +40% sobre Breakeven</p>';
   h+='<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap"><select id="pr-l" onchange="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px"><option value="ALL">Todas</option>';
@@ -315,7 +344,7 @@ function renderPricing(){
   h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1">';
   h+='<button class="btn-sm" style="background:#87CEEB;color:#000;border-color:#87CEEB;font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button><button class="btn-sm" style="background:var(--gn);color:#000;border-color:var(--gn);font-weight:600" onclick="exportVentasPDF()">📄 PDF Ventas</button></div>';
   h+='<div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto"></div></div>';
-  var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=((c.mp/c.r)+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
+  var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=(c.mp+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
   var kh='<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">';
   kh+='<div class="kpi"><div class="lb">Bajo Breakeven</div><div class="vl neg">'+nB+'</div></div>';
   kh+='<div class="kpi"><div class="lb">Sobre Breakeven</div><div class="vl pos">'+nA+'</div></div>';
@@ -326,8 +355,8 @@ function doFPR(){
   var all=calcAllPL();var fl_v=document.getElementById("pr-l").value;var st=document.getElementById("pr-st").value;var fs=document.getElementById("pr-s").value.toLowerCase();
   var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
   var items=[];for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;if(fl_v!=="ALL"&&c.l!==fl_v)continue;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)continue;
-  var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);if(st==="BAJO"&&c.pv>=pBE)continue;if(st==="OK"&&c.pv<pBE)continue;
-  var pCMG15=((c.mp/c.r)+mod+fl)/(1-impPct-0.15);var cmg15=pCMG15-(c.mp/c.r)-mod-pCMG15*impPct-fl;var p20=pBE*1.20;var e20=p20-(c.mp/c.r)-mod-p20*impPct-fl-gf;var p30=pBE*1.30;var e30=p30-(c.mp/c.r)-mod-p30*impPct-fl-gf;var p40=pBE*1.40;var e40=p40-(c.mp/c.r)-mod-p40*impPct-fl-gf;
+  var cb=c.mp+mod+fl+gf;var pBE=cb/(1-impPct);if(st==="BAJO"&&c.pv>=pBE)continue;if(st==="OK"&&c.pv<pBE)continue;
+  var pCMG15=(c.mp+mod+fl)/(1-impPct-0.15);var cmg15=pCMG15-c.mp-mod-pCMG15*impPct-fl;var p20=pBE*1.20;var e20=p20-c.mp-mod-p20*impPct-fl-gf;var p30=pBE*1.30;var e30=p30-c.mp-mod-p30*impPct-fl-gf;var p40=pBE*1.40;var e40=p40-c.mp-mod-p40*impPct-fl-gf;
   items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,pCMG15:pCMG15,cmg15:cmg15,p20:p20,e20:e20,p30:p30,e30:e30,p40:p40,e40:e40,gap:c.pv-pBE,v:c.v});}
   items.sort(function(a,b){return a.gap-b.gap});
   var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">P.Actual</th><th style="text-align:right">EBITDA Act</th><th style="text-align:right;color:var(--ac)">P.CMG15%</th><th style="text-align:right;color:var(--ac)">CMG 15%</th><th style="text-align:right;color:var(--or)">Breakeven</th><th style="text-align:right;color:var(--gn)">P.+20%</th><th style="text-align:right;color:var(--gn)">EBITDA+20%</th><th style="text-align:right;color:var(--gn)">P.+30%</th><th style="text-align:right;color:var(--gn)">EBITDA+30%</th><th style="text-align:right;color:var(--gn)">P.+40%</th><th style="text-align:right;color:var(--gn)">EBITDA+40%</th><th style="text-align:right">Gap</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
@@ -378,13 +407,38 @@ function renderUnitario(){
 function doFU(){
   var all=calcAllPL();var fl=document.getElementById("u-l").value;var st=document.getElementById("u-st").value;var fs=document.getElementById("u-s").value.toLowerCase();
   var items=all.filter(function(c){if(c.v<=0)return false;if(fl!=="ALL"&&c.l!==fl)return false;if(st==="POS"&&c.ebitda<=0)return false;if(st==="NEG"&&c.ebitda>0)return false;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)return false;return true;}).sort(function(a,b){return b.rev-a.rev;});
-  var maxP=0;for(var i=0;i<items.length;i++)if(items[i].pv>maxP)maxP=items[i].pv;var gf=gp('pGF');
+  var maxP=0;for(var i=0;i<items.length;i++)if(items[i].pv>maxP)maxP=items[i].pv;var gf=gp('pGF')+gp('pBACK');
   var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP</th><th style="text-align:right">CMG</th><th style="text-align:right">EBITDA</th><th>%</th><th>Waterfall</th></tr></thead><tbody>';
-  for(var i=0;i<items.length;i++){var c=items[i];var mpr=c.mp/c.r;var bw=maxP>0?80:0;var mpW=mpr/maxP*bw;var modW=c.mod/maxP*bw;var impW=(c.imp+c.fl)/maxP*bw;var gfW=gf/maxP*bw;var eW=c.ebitda>0?c.ebitda/maxP*bw:0;var lW=c.ebitda<0?Math.min(Math.abs(c.ebitda)/maxP*bw,12):0;var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';
+  for(var i=0;i<items.length;i++){var c=items[i];var mpr=c.mp;var bw=maxP>0?80:0;var mpW=mpr/maxP*bw;var modW=c.mod/maxP*bw;var impW=(c.imp+c.fl)/maxP*bw;var gfW=gf/maxP*bw;var eW=c.ebitda>0?c.ebitda/maxP*bw:0;var lW=c.ebitda<0?Math.min(Math.abs(c.ebitda)/maxP*bw,12):0;var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';
   h+='<tr style="cursor:pointer" onclick="showUD('+i+')"><td style="font-size:9px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td><div style="display:flex;height:8px;border-radius:2px;overflow:hidden;width:'+bw+'px;background:var(--bd)"><div style="width:'+mpW+'px;background:var(--rd);opacity:.7"></div><div style="width:'+modW+'px;background:var(--or);opacity:.7"></div><div style="width:'+impW+'px;background:var(--pu);opacity:.5"></div><div style="width:'+gfW+'px;background:var(--t2);opacity:.5"></div>'+(c.ebitda>0?'<div style="width:'+eW+'px;background:var(--gn)"></div>':'<div style="width:'+lW+'px;background:var(--rd);opacity:.3"></div>')+'</div></td></tr>';}
   h+='</tbody></table>';document.getElementById("u-tbl").innerHTML=h;window._ui=items;
 }
-function showUD(idx){var c=window._ui[idx];var mpr=c.mp/c.r;var gf=gp('pGF');var h='<h3>'+c.p+'</h3><div style="font-size:10px;color:var(--t2);margin-bottom:6px">'+c.l+' · R='+c.r+'</div>';h+='<div class="sr" style="padding:5px 0"><span class="lb">Precio</span><span class="vl" style="font-size:14px">USD '+fd(c.pv)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) MP</span><span class="vl neg">'+fd(c.mp)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) MOD</span><span class="vl" style="color:var(--t2)">'+fd(c.mod)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) Imp</span><span class="vl" style="color:var(--t2)">'+fd(c.imp)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) Flete</span><span class="vl" style="color:var(--t2)">'+fd(c.fl)+'</span></div>';h+='<div style="border-top:2px solid var(--bd);margin:4px 0"></div>';h+='<div class="sr"><span class="lb" style="font-weight:700">= CMG</span><span class="vl" style="color:'+(c.cmg>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.cmg)+'</span></div>';h+='<div class="sr" style="padding-left:10px"><span class="lb">(-) GF</span><span class="vl warn">'+fd(gf)+'</span></div>';h+='<div style="border-top:3px solid var(--ac);margin:4px 0"></div>';h+='<div class="sr"><span class="lb" style="font-weight:700;font-size:13px">= EBITDA</span><span class="vl" style="color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+';font-size:16px">USD '+fd(c.ebitda)+'</span></div>';h+='<div style="border-top:1px solid var(--bd);margin:6px 0"></div>';h+='<div class="sr"><span class="lb">Vol</span><span class="vl">'+fmt(c.v)+' kg</span></div>';h+='<div class="sr"><span class="lb">EBITDA anual</span><span class="vl" style="color:'+(c.ebitdaAbs>=0?'var(--gn)':'var(--rd)')+'">USD '+(c.ebitdaAbs<0?'-':'')+fmt(c.ebitdaAbs)+'</span></div>';if(c.ebitda<0)h+='<div style="margin-top:6px;padding:6px;background:rgba(255,77,106,.1);border-radius:6px;font-size:10px;color:var(--rd)">Breakeven: USD '+fd(c.pv-c.ebitda)+'/kg</div>';document.getElementById("u-det").innerHTML=h;}
+function showUD(idx){var c=window._ui[idx];var row=function(lb,vl,col,ind,bold){return '<div class="sr" style="'+(ind?'padding-left:10px':'')+'"><span class="lb"'+(bold?' style="font-weight:700"':'')+'>'+lb+'</span><span class="vl"'+(col?' style="color:'+col+'"':'')+'>'+vl+'</span></div>';};
+var h='<h3>'+c.p+'</h3><div style="font-size:10px;color:var(--t2);margin-bottom:6px">'+c.l+' · R='+c.r+' (informativo, no se aplica)</div>';
+h+=row('Precio Venta','USD '+fd(c.pv),null,false,true);
+h+=row('(-) MP+ME',fd(c.mp),'var(--t2)',true);
+h+=row('(-) MOD+Energía',fd(c.mod),'var(--t2)',true);
+h+=row('(-) Imp directo ('+gp('pIMP')+'%)',fd(c.imp),'var(--t2)',true);
+h+=row('(-) Flete',fd(c.fl),'var(--t2)',true);
+h+='<div style="border-top:2px solid var(--bd);margin:4px 0"></div>';
+h+=row('= CMG',fd(c.cmg)+' ('+(c.cmgPct*100).toFixed(0)+'%)',c.cmg>=0?'var(--gn)':'var(--rd)',false,true);
+h+=row('(-) Gastos Fijos',fd(c.gf),'var(--wn)',true);
+h+=row('(-) Back Office',fd(c.back),'var(--wn)',true);
+h+='<div style="border-top:3px solid var(--ac);margin:4px 0"></div>';
+h+='<div class="sr"><span class="lb" style="font-weight:700;font-size:13px">= EBITDA</span><span class="vl" style="color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+';font-size:16px">USD '+fd(c.ebitda)+' ('+(c.ebitdaPct*100).toFixed(0)+'%)</span></div>';
+h+=row('(-) Amortización',fd(c.am),'var(--t2)',true);
+h+='<div style="border-top:1px solid var(--bd);margin:4px 0"></div>';
+h+=row('= EBIT',fd(c.ebit),c.ebit>=0?'var(--gn)':'var(--rd)',false,true);
+h+=row('(-) Financiero',fd(c.ifin),'var(--t2)',true);
+h+=row('(-) CF Inventario',fd(c.cfi),'var(--t2)',true);
+h+=row('(-) Otros Impuestos',fd(c.otrosImp),'var(--t2)',true);
+h+='<div style="border-top:1px solid var(--bd);margin:4px 0"></div>';
+h+=row('= Result. a/Imp',fd(c.rai),c.rai>=0?'var(--gn)':'var(--rd)',false,true);
+h+='<div style="border-top:1px solid var(--bd);margin:6px 0"></div>';
+h+=row('Vol',fmt(c.v)+' kg',null);
+h+='<div class="sr"><span class="lb">EBITDA anual</span><span class="vl" style="color:'+(c.ebitdaAbs>=0?'var(--gn)':'var(--rd)')+'">USD '+(c.ebitdaAbs<0?'-':'')+fmt(c.ebitdaAbs)+'</span></div>';
+if(c.ebitda<0)h+='<div style="margin-top:6px;padding:6px;background:rgba(255,77,106,.1);border-radius:6px;font-size:10px;color:var(--rd)">Breakeven: USD '+fd(c.pv-c.ebitda)+'/kg</div>';
+document.getElementById("u-det").innerHTML=h;}
 
 // ===== TAB: INVENTARIO =====
 function renderInventario(){
@@ -602,7 +656,7 @@ function cotCalcular(){
   var volMensualActual = getVolMensualReal();
   var FL = gp('pFL');
   var IMP = gp('pIMP') / 100;
-  var GF_actual = gp('pGF');
+  var GF_actual = gp('pGF')+gp('pBACK');
   var MOD = gp('pMOD');
   var TNA = gp('pTNA') / 100;
   
@@ -614,7 +668,7 @@ function cotCalcular(){
   var GF_nuevo = volMensualNuevo > 0 ? gastosFijosTotalesUSD / volMensualNuevo : 0;
   
   // Costo base (sin GF)
-  var costoBase = p.mp/(p.r||1) + MOD + FL;
+  var costoBase = p.mp + MOD + FL;
   
   // ============ Renderizar info del producto ============
   var pInfo = document.getElementById('cotProductoInfo');
@@ -623,7 +677,7 @@ function cotCalcular(){
       '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px">' +
       '<div><div style="color:var(--t2);font-size:10px">Producto</div><div style="color:var(--ac);font-weight:600">['+p.l+'] '+p.p+'</div></div>' +
       '<div><div style="color:var(--t2);font-size:10px">Precio actual</div><div style="color:var(--t1);font-weight:600">USD '+p.pv.toFixed(4)+'/kg</div></div>' +
-      '<div><div style="color:var(--t2);font-size:10px">Costo MP/r</div><div style="color:var(--t1);font-weight:600">USD '+(p.mp/(p.r||1)).toFixed(4)+'/kg</div></div>' +
+      '<div><div style="color:var(--t2);font-size:10px">Costo MP/r</div><div style="color:var(--t1);font-weight:600">USD '+(p.mp).toFixed(4)+'/kg</div></div>' +
       '<div><div style="color:var(--t2);font-size:10px">Volumen actual</div><div style="color:var(--t1);font-weight:600">'+Math.round(p.v).toLocaleString('es-AR')+' kg/año</div></div>' +
       '</div>';
   }
@@ -638,8 +692,8 @@ function cotCalcular(){
   // ============ ESCENARIOS DE PRECIO (la tabla nueva) ============
   // Fórmulas (igual que doFPR pero usando GF_nuevo)
   // CMG 15%: precio donde CMG sea 15% del precio
-  var pCMG15 = (1 - IMP - 0.15) > 0 ? ((p.mp/(p.r||1)) + MOD + FL) / (1 - IMP - 0.15) : 0;
-  var cmg15 = pCMG15 - (p.mp/(p.r||1)) - MOD - pCMG15*IMP - FL;
+  var pCMG15 = (1 - IMP - 0.15) > 0 ? ((p.mp) + MOD + FL) / (1 - IMP - 0.15) : 0;
+  var cmg15 = pCMG15 - (p.mp) - MOD - pCMG15*IMP - FL;
   // Breakeven: precio donde EBITDA = 0
   var pBE = (1 - IMP) > 0 ? (costoBase + GF_nuevo) / (1 - IMP) : 0;
   // +20%, +30%, +40%
@@ -649,11 +703,11 @@ function cotCalcular(){
   
   // EBITDA por kg para cada escenario
   function calcEbitda(pp){
-    return pp - (p.mp/(p.r||1)) - MOD - pp*IMP - FL - GF_nuevo;
+    return pp - (p.mp) - MOD - pp*IMP - FL - GF_nuevo;
   }
   function calcEbitdaCMG15(pp){
     // En CMG 15% se computa CMG (sin GF)
-    return pp - (p.mp/(p.r||1)) - MOD - pp*IMP - FL;
+    return pp - (p.mp) - MOD - pp*IMP - FL;
   }
   
   var e_cmg15 = calcEbitdaCMG15(pCMG15) - GF_nuevo;  // EBITDA real (con GF) en P.CMG15
@@ -767,14 +821,14 @@ function cotExportExcel(){
   var TC = gp('pTC'), FL = gp('pFL');
   // Volumen mensual REAL (única fuente de verdad)
   var volMensualActual = getVolMensualReal();
-  var IMP = gp('pIMP')/100, GF_actual = gp('pGF'), MOD = gp('pMOD');
+  var IMP = gp('pIMP')/100, GF_actual = gp('pGF')+gp('pBACK'), MOD = gp('pMOD');
   var gastosFijosTotalesUSD = GF_actual * volMensualActual;
   var volMensualNuevo = volMensualActual + volCliente;
   var GF_nuevo = volMensualNuevo > 0 ? gastosFijosTotalesUSD / volMensualNuevo : 0;
-  var costoBase = p.mp/(p.r||1) + MOD + FL;
+  var costoBase = p.mp + MOD + FL;
   var pBE = (1 - IMP) > 0 ? (costoBase + GF_nuevo) / (1 - IMP) : 0;
-  var pCMG15 = (1 - IMP - 0.15) > 0 ? ((p.mp/(p.r||1)) + MOD + FL) / (1 - IMP - 0.15) : 0;
-  function calcEb(pp){return pp - (p.mp/(p.r||1)) - MOD - pp*IMP - FL - GF_nuevo;}
+  var pCMG15 = (1 - IMP - 0.15) > 0 ? ((p.mp) + MOD + FL) / (1 - IMP - 0.15) : 0;
+  function calcEb(pp){return pp - (p.mp) - MOD - pp*IMP - FL - GF_nuevo;}
   var rows = [
     ['COTIZACIÓN — RECSA Dashboard P&L'],
     ['Fecha', new Date().toLocaleDateString('es-AR')],
@@ -783,7 +837,7 @@ function cotExportExcel(){
     ['Línea', p.l],
     ['Producto', p.p],
     ['Precio actual (USD/kg)', p.pv.toFixed(4)],
-    ['Costo MP/r (USD/kg)', (p.mp/(p.r||1)).toFixed(4)],
+    ['Costo MP/r (USD/kg)', (p.mp).toFixed(4)],
     [''],
     ['ESCENARIO COTIZADO',''],
     ['Volumen del cliente (kg/mes)', volCliente],
@@ -797,7 +851,7 @@ function cotExportExcel(){
     [''],
     ['ESCENARIOS DE PRECIO',''],
     ['Escenario', 'Precio USD/kg', 'EBITDA USD/kg', 'EBITDA mensual', 'EBITDA anual'],
-    ['CMG 15%', pCMG15.toFixed(4), (pCMG15 - p.mp/(p.r||1) - MOD - pCMG15*IMP - FL - GF_nuevo).toFixed(4), ((pCMG15 - p.mp/(p.r||1) - MOD - pCMG15*IMP - FL - GF_nuevo)*volCliente).toFixed(2), ((pCMG15 - p.mp/(p.r||1) - MOD - pCMG15*IMP - FL - GF_nuevo)*volCliente*12).toFixed(2)],
+    ['CMG 15%', pCMG15.toFixed(4), (pCMG15 - p.mp - MOD - pCMG15*IMP - FL - GF_nuevo).toFixed(4), ((pCMG15 - p.mp - MOD - pCMG15*IMP - FL - GF_nuevo)*volCliente).toFixed(2), ((pCMG15 - p.mp - MOD - pCMG15*IMP - FL - GF_nuevo)*volCliente*12).toFixed(2)],
     ['Breakeven', pBE.toFixed(4), '0.0000', '0.00', '0.00'],
     ['+20% sobre BE', (pBE*1.20).toFixed(4), calcEb(pBE*1.20).toFixed(4), (calcEb(pBE*1.20)*volCliente).toFixed(2), (calcEb(pBE*1.20)*volCliente*12).toFixed(2)],
     ['+30% sobre BE', (pBE*1.30).toFixed(4), calcEb(pBE*1.30).toFixed(4), (calcEb(pBE*1.30)*volCliente).toFixed(2), (calcEb(pBE*1.30)*volCliente*12).toFixed(2)],
@@ -850,14 +904,18 @@ function renderGastos(){
   r.total=r.cdir+r.fijo+r.logis+r.back;v.total=v.cdir+v.fijo+v.logis+v.back;
   var rPerKg=Math.abs(r.total)/tc/volR;var vPerKg=Math.abs(v.total)/tc/volV;
   // Auto-update P&L params (SOLO si hay datos reales; nunca persistir ceros)
-  var newGF=(Math.abs(r.fijo)+Math.abs(r.back))/tc/volR;
-  var newMOD=(Math.abs(r.cdir)+Math.abs(r.logis))/tc/volR;
+  // Estructura ortodoxa: Fijo, Back Office y MOD (CDir+Logística) por separado
+  var newGF=Math.abs(r.fijo)/tc/volR;                       // solo Gastos Fijos
+  var newBACK=Math.abs(r.back)/tc/volR;                     // Back Office separado
+  var newMOD=(Math.abs(r.cdir)+Math.abs(r.logis))/tc/volR;  // Costo directo
   if(G.length>0&&Math.abs(totalCost)>0&&newGF>0&&newMOD>0){
     document.getElementById('pGF').value=newGF.toFixed(4);
+    document.getElementById('pBACK').value=newBACK.toFixed(4);
     document.getElementById('pMOD').value=newMOD.toFixed(4);
     if(document.getElementById('pGFdisplay'))document.getElementById('pGFdisplay').textContent=newGF.toFixed(4);
+    if(document.getElementById('pBACKdisplay'))document.getElementById('pBACKdisplay').textContent=newBACK.toFixed(4);
     if(document.getElementById('pMODdisplay'))document.getElementById('pMODdisplay').textContent=newMOD.toFixed(4);
-    try{localStorage.setItem('recsa_pGF',newGF.toFixed(4));localStorage.setItem('recsa_pMOD',newMOD.toFixed(4));localStorage.setItem('recsa_gastos_fecha',new Date().toISOString());}catch(e){}
+    try{localStorage.setItem('recsa_pGF',newGF.toFixed(4));localStorage.setItem('recsa_pBACK',newBACK.toFixed(4));localStorage.setItem('recsa_pMOD',newMOD.toFixed(4));localStorage.setItem('recsa_gastos_fecha',new Date().toISOString());}catch(e){}
   }
 
   var fmtG=function(n){return Math.abs(n).toLocaleString('es-AR',{maximumFractionDigits:0})};
@@ -927,18 +985,18 @@ function loadMaster(file){
 
 // ===== EXPORT =====
 function exportCSV(){
-  var all=calcAllPL();var gf=gp('pGF');
+  var all=calcAllPL();var gf=gp('pGF')+gp('pBACK');
   var csv='Línea,Producto,Precio,MP,Rend,MP_Rend,MOD,Imp,Flete,CMG,CMG%,GF,EBITDA,EBITDA%,Vol,Revenue,EBITDA Total,CF Inv\n';
-  for(var i=0;i<all.length;i++){var c=all[i];csv+='"'+c.l+'","'+c.p+'",'+fd(c.pv)+','+c.mp.toFixed(4)+','+c.r+','+(c.mp/c.r).toFixed(4)+','+fd(c.mod)+','+fd(c.imp)+','+fd(c.fl)+','+fd(c.cmg)+','+(c.cmgPct*100).toFixed(1)+','+fd(gf)+','+fd(c.ebitda)+','+(c.ebitdaPct*100).toFixed(1)+','+c.v+','+c.rev.toFixed(0)+','+c.ebitdaAbs.toFixed(0)+','+c.cfi.toFixed(4)+'\n';}
+  for(var i=0;i<all.length;i++){var c=all[i];csv+='"'+c.l+'","'+c.p+'",'+fd(c.pv)+','+c.mp.toFixed(4)+','+c.r+','+c.mp.toFixed(4)+','+fd(c.mod)+','+fd(c.imp)+','+fd(c.fl)+','+fd(c.cmg)+','+(c.cmgPct*100).toFixed(1)+','+fd(gf)+','+fd(c.ebitda)+','+(c.ebitdaPct*100).toFixed(1)+','+c.v+','+c.rev.toFixed(0)+','+c.ebitdaAbs.toFixed(0)+','+c.cfi.toFixed(4)+'\n';}
   var b=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='RECSA_PL_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
 // ===== PDF EXPORT =====
 function exportVentasPDF(){
-  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF')+gp('pBACK'),impPct=gp('pIMP')/100;
   var items=[];
   for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
-    var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);
+    var cb=c.mp+mod+fl+gf;var pBE=cb/(1-impPct);
     items.push({l:c.l,p:c.p,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
   }
   items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
@@ -972,11 +1030,11 @@ function exportVentasPDF(){
 }
 
 function exportPricingPDF(){
-  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF')+gp('pBACK'),impPct=gp('pIMP')/100;
   var items=[];
   for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
-    var cb=(c.mp/c.r)+mod+fl+gf;var pBE=cb/(1-impPct);
-    var pCMG15=((c.mp/c.r)+mod+fl)/(1-impPct-0.15);
+    var cb=c.mp+mod+fl+gf;var pBE=cb/(1-impPct);
+    var pCMG15=(c.mp+mod+fl)/(1-impPct-0.15);
     items.push({l:c.l,p:c.p,pCMG15:pCMG15,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
   }
   items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
