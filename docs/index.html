@@ -74,8 +74,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 <div class="header">
   <div><h1><span>RECSA</span> — Dashboard Integral P&L</h1><div class="sub">Pérdidas & Ganancias · Asignación de Gastos · Costo Inventario · <span id="dataSource" style="color:var(--ac)">Datos base</span></div></div>
   <div style="display:flex;gap:8px;align-items:center">
-    <label class="btn-load" onclick="document.getElementById('fileIn').click()">📂 Excel Master</label>
-    <input type="file" id="fileIn" accept=".xlsx,.xls" style="display:none" onchange="loadMaster(this.files[0])">
     <button class="btn-sm" onclick="exportCSV()">📥 CSV</button>
   </div>
 </div>
@@ -83,7 +81,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
   <div><label>TC USD/ARS</label><br><input type="number" id="pTC" value="1450" onchange="recalcAll()"></div>
   <div style="opacity:0.5"><label>Vol Mensual kg</label><br><span class="mono" id="pVoldisplay" style="font-size:12px;color:var(--pu)">28508</span><div style="font-size:8px;color:var(--pu)">← Suma de productos</div></div>
   <div><label>Flete USD/kg</label><br><input type="number" id="pFL" value="0" step="0.01" onchange="recalcAll()"></div>
-  <div><label>Imp %</label><br><input type="number" id="pIMP" value="7.0" step="0.1" onchange="recalcAll()"></div>
+  <div><label>Imp %</label><br><input type="number" id="pIMP" value="5.8" step="0.1" onchange="recalcAll()"></div>
   <div><label>TNA %</label><br><input type="number" id="pTNA" value="35" step="1" onchange="recalcAll()"><div style="font-size:8px;color:var(--pu);margin-top:1px">← Inventario</div></div>
   <div class="sep"></div>
   <div style="opacity:0.5"><label>GF USD/kg</label><br><span class="mono" id="pGFdisplay" style="font-size:12px;color:var(--pu)">0.9214</span><div style="font-size:8px;color:var(--pu)">← Asig. Gastos</div></div>
@@ -860,10 +858,8 @@ function cotExportExcel(){
 // ===== TAB: ASIGNACION DE GASTOS =====
 function renderGastos(){
   if(G.length===0){
-    var h='<div style="text-align:center;padding:80px 40px"><h2 style="color:var(--or);margin-bottom:16px">💼 Asignación de Gastos Operativos</h2><p style="color:var(--t2);margin-bottom:24px">Cargue el archivo Excel de Gastos Operativos (INPUT_3_Gastos_Operativos.xlsx)</p>';
-    h+='<label class="btn-load" style="padding:16px 32px;font-size:14px" onclick="document.getElementById(\x27gasFile\x27).click()">📂 Cargar Excel de Gastos</label>';
-    h+='<input type="file" id="gasFile" accept=".xlsx,.xls" style="display:none" onchange="loadGastos(this.files[0])">';
-    h+='<div style="margin-top:24px;color:var(--t2);font-size:12px">Después de asignar, los valores de GF y MOD se actualizan automáticamente en el P&L</div>';
+    var h='<div style="text-align:center;padding:80px 40px"><h2 style="color:var(--or);margin-bottom:16px">💼 Asignación de Gastos Operativos</h2><p style="color:var(--t2);margin-bottom:24px">La actualización de gastos se realiza por chat siguiendo el procedimiento operativo documentado.</p>';
+        h+='<div style="margin-top:24px;color:var(--t2);font-size:12px">Después de asignar, los valores de GF y MOD se actualizan automáticamente en el P&L</div>';
     var fechaGastos=localStorage.getItem('recsa_gastos_fecha');
     var savedGF=localStorage.getItem('recsa_pGF');
     var savedMOD=localStorage.getItem('recsa_pMOD');
