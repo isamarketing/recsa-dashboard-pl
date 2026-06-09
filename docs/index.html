@@ -182,7 +182,6 @@ var G_TC=1490, G_VOL_R=29378.5, G_VOL_V=17500;
 var currentTab="resumen";
 var tabNames=[
   {id:"resumen",label:"Resumen Ejecutivo",sec:false},
-  {id:"lineas",label:"Por Línea",sec:false},
   {id:"productos",label:"Por Producto",sec:false},
   {id:"pricing",label:"Pricing Estratégico",sec:false},
   {id:"alertas",label:"Alertas",sec:false},
@@ -266,7 +265,7 @@ function renderTabs(){
 }
 
 function renderContent(){
-  var fn={resumen:renderResumen,lineas:renderLineas,productos:renderProductos,pricing:renderPricing,alertas:renderAlertas,simulador:renderSimulador,unitario:renderUnitario,inventario:renderInventario,gastos:renderGastos,cotizador:renderCotizador};
+  var fn={resumen:renderResumen,productos:renderProductos,pricing:renderPricing,alertas:renderAlertas,simulador:renderSimulador,unitario:renderUnitario,inventario:renderInventario,gastos:renderGastos,cotizador:renderCotizador};
   if(fn[currentTab])fn[currentTab]();
 }
 
@@ -283,32 +282,13 @@ function renderResumen(){
 
   var winners=all.filter(function(c){return c.ebitda>0&&c.v>0}).sort(function(a,b){return b.ebitdaAbs-a.ebitdaAbs}).slice(0,10);
   var losers=all.filter(function(c){return c.ebitda<0&&c.v>0}).sort(function(a,b){return a.ebitdaAbs-b.ebitdaAbs}).slice(0,10);
-  h+='<div class="row"><div class="card"><h3>Top 10 Ganadores</h3><table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">EBITDA USD</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
-  for(var i=0;i<winners.length;i++){var c=winners[i];h+='<tr><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono pos" style="text-align:right">'+fmt(c.ebitdaAbs)+'</td><td class="mono pos">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
+  h+='<div class="row"><div class="card"><h3>Top 10 Ganadores</h3><table><thead><tr><th>Producto</th><th style="text-align:right">EBITDA USD</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
+  for(var i=0;i<winners.length;i++){var c=winners[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td class="mono pos" style="text-align:right">'+fmt(c.ebitdaAbs)+'</td><td class="mono pos">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
   h+='</tbody></table></div>';
-  h+='<div class="card"><h3>Top 10 con Pérdida</h3><table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Pérdida USD</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
-  for(var i=0;i<losers.length;i++){var c=losers[i];h+='<tr><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
+  h+='<div class="card"><h3>Top 10 con Pérdida</h3><table><thead><tr><th>Producto</th><th style="text-align:right">Pérdida USD</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
+  for(var i=0;i<losers.length;i++){var c=losers[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
   h+='</tbody></table></div></div>';
 
-  // By line
-  var lines={};for(var i=0;i<all.length;i++){var c=all[i];var l=c.l||'OTROS';if(!lines[l])lines[l]={rev:0,ebitda:0,cmg:0,vol:0,n:0};lines[l].rev+=c.rev;lines[l].ebitda+=c.ebitdaAbs;lines[l].cmg+=c.cmgAbs;lines[l].vol+=c.v;lines[l].n++;}
-  var lk=Object.keys(lines).sort(function(a,b){return lines[b].rev-lines[a].rev});
-  h+='<div class="card full"><h3>P&L por Línea</h3><table><thead><tr><th>Línea</th><th style="text-align:right">Revenue</th><th style="text-align:right">EBITDA</th><th>Margen</th><th>Vol</th><th>#</th><th>Status</th></tr></thead><tbody>';
-  for(var i=0;i<lk.length;i++){var l=lk[i];var d=lines[l];var m=d.rev>0?(d.ebitda/d.rev*100).toFixed(1):'0';var color=parseFloat(m)>10?'var(--gn)':parseFloat(m)>0?'var(--or)':'var(--rd)';var tag=parseFloat(m)>10?'<span class="tag tag-ok">RENTABLE</span>':parseFloat(m)>0?'<span class="tag tag-warn">MARGINAL</span>':'<span class="tag tag-bad">PIERDE</span>';
-  h+='<tr><td style="font-weight:600">'+l+'</td><td class="mono" style="text-align:right">'+fmt(d.rev)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+(d.ebitda<0?'('+fmt(d.ebitda)+')':fmt(d.ebitda))+'</td><td class="mono" style="color:'+color+'">'+m+'%</td><td class="mono">'+fmt(d.vol)+'</td><td class="mono">'+d.n+'</td><td>'+tag+'</td></tr>';}
-  h+='</tbody></table></div>';
-  document.getElementById("content").innerHTML=h;
-}
-
-// ===== TAB: LINEAS =====
-function renderLineas(){
-  var all=calcAllPL();var t=totalsPL(all);
-  var lines={};for(var i=0;i<all.length;i++){var c=all[i];var l=c.l||'OTROS';if(!lines[l])lines[l]={rev:0,ebitda:0,cmg:0,vol:0,n:0};lines[l].rev+=c.rev;lines[l].ebitda+=c.ebitdaAbs;lines[l].cmg+=c.cmgAbs;lines[l].vol+=c.v;lines[l].n++;}
-  var lk=Object.keys(lines).sort(function(a,b){return lines[b].rev-lines[a].rev});
-  var h='<div class="card full"><h3>Detalle por Línea de Producto</h3><table><thead><tr><th>Línea</th><th style="text-align:right">Revenue</th><th>% Rev</th><th style="text-align:right">CMG</th><th style="text-align:right">EBITDA</th><th>Margen</th><th>Vol</th><th>#</th><th>Status</th></tr></thead><tbody>';
-  for(var i=0;i<lk.length;i++){var l=lk[i];var d=lines[l];var rp=t.rev>0?(d.rev/t.rev*100).toFixed(1):'0';var m=d.rev>0?(d.ebitda/d.rev*100).toFixed(1):'0';var color=parseFloat(m)>10?'var(--gn)':parseFloat(m)>0?'var(--or)':'var(--rd)';var tag=parseFloat(m)>10?'<span class="tag tag-ok">OK</span>':parseFloat(m)>0?'<span class="tag tag-warn">!!</span>':'<span class="tag tag-bad">X</span>';
-  h+='<tr><td style="font-weight:600">'+l+'</td><td class="mono" style="text-align:right">'+fmt(d.rev)+'</td><td class="mono">'+rp+'%</td><td class="mono" style="text-align:right;color:'+color+'">'+fmt(d.cmg)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+(d.ebitda<0?'('+fmt(d.ebitda)+')':fmt(d.ebitda))+'</td><td class="mono" style="color:'+color+'">'+m+'%</td><td class="mono">'+fmt(d.vol)+'</td><td class="mono">'+d.n+'</td><td>'+tag+'</td></tr>';}
-  h+='<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>TOTAL</td><td class="mono" style="text-align:right">'+fmt(t.rev)+'</td><td class="mono">100%</td><td class="mono" style="text-align:right">'+fmt(t.cmg)+'</td><td class="mono" style="text-align:right;color:'+(t.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+(t.ebitda<0?'('+fmt(t.ebitda)+')':fmt(t.ebitda))+'</td><td class="mono">'+t.margin+'%</td><td class="mono">'+fmt(t.vol)+'</td><td class="mono">'+t.n+'</td><td></td></tr></tbody></table></div>';
   document.getElementById("content").innerHTML=h;
 }
 
@@ -327,9 +307,9 @@ function doFP(){
   var all=calcAllPL();var fl=document.getElementById("filter-l").value;var fs=document.getElementById("search-p").value.toLowerCase();var so=document.getElementById("sort-p").value;
   var items=all.filter(function(c){if(fl!=="ALL"&&c.l!==fl)return false;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)return false;return true;});
   if(so==="revenue")items.sort(function(a,b){return b.rev-a.rev});else if(so==="ebitda")items.sort(function(a,b){return b.ebitdaAbs-a.ebitdaAbs});else if(so==="margin")items.sort(function(a,b){return b.ebitdaPct-a.ebitdaPct});else items.sort(function(a,b){return b.v-a.v});
-  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP</th><th style="text-align:right">CMG</th><th>CMG%</th><th style="text-align:right">EBITDA</th><th>EBITDA%</th><th style="text-align:right">Revenue</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
+  var h='<table><thead><tr><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP</th><th style="text-align:right">CMG</th><th>CMG%</th><th style="text-align:right">EBITDA</th><th>EBITDA%</th><th style="text-align:right">Revenue</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
   for(var i=0;i<items.length;i++){var c=items[i];var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';var tag=c.ebitda>0?(c.ebitdaPct>0.1?'<span class="tag tag-ok">OK</span>':'<span class="tag tag-warn">!!</span>'):'<span class="tag tag-bad">X</span>';
-  h+='<tr><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right">'+fd(c.mp)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.cmgPct)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td class="mono" style="text-align:right">'+fmt(c.rev)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
+  h+='<tr><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right">'+fd(c.mp)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.cmgPct)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td class="mono" style="text-align:right">'+fmt(c.rev)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
   h+='</tbody></table>';document.getElementById("prod-tbl").innerHTML=h;
 }
 
@@ -359,9 +339,9 @@ function doFPR(){
   var pCMG15=(c.mp+mod+fl)/(1-impPct-0.15);var cmg15=pCMG15-c.mp-mod-pCMG15*impPct-fl;var p20=pBE*1.20;var e20=p20-c.mp-mod-p20*impPct-fl-gf;var p30=pBE*1.30;var e30=p30-c.mp-mod-p30*impPct-fl-gf;var p40=pBE*1.40;var e40=p40-c.mp-mod-p40*impPct-fl-gf;
   items.push({l:c.l,p:c.p,pv:c.pv,ebitda:c.ebitda,pBE:pBE,pCMG15:pCMG15,cmg15:cmg15,p20:p20,e20:e20,p30:p30,e30:e30,p40:p40,e40:e40,gap:c.pv-pBE,v:c.v});}
   items.sort(function(a,b){return a.gap-b.gap});
-  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">P.Actual</th><th style="text-align:right">EBITDA Act</th><th style="text-align:right;color:var(--ac)">P.CMG15%</th><th style="text-align:right;color:var(--ac)">CMG 15%</th><th style="text-align:right;color:var(--or)">Breakeven</th><th style="text-align:right;color:var(--gn)">P.+20%</th><th style="text-align:right;color:var(--gn)">EBITDA+20%</th><th style="text-align:right;color:var(--gn)">P.+30%</th><th style="text-align:right;color:var(--gn)">EBITDA+30%</th><th style="text-align:right;color:var(--gn)">P.+40%</th><th style="text-align:right;color:var(--gn)">EBITDA+40%</th><th style="text-align:right">Gap</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
+  var h='<table><thead><tr><th>Producto</th><th style="text-align:right">P.Actual</th><th style="text-align:right">EBITDA Act</th><th style="text-align:right;color:var(--ac)">P.CMG15%</th><th style="text-align:right;color:var(--ac)">CMG 15%</th><th style="text-align:right;color:var(--or)">Breakeven</th><th style="text-align:right;color:var(--gn)">P.+20%</th><th style="text-align:right;color:var(--gn)">EBITDA+20%</th><th style="text-align:right;color:var(--gn)">P.+30%</th><th style="text-align:right;color:var(--gn)">EBITDA+30%</th><th style="text-align:right;color:var(--gn)">P.+40%</th><th style="text-align:right;color:var(--gn)">EBITDA+40%</th><th style="text-align:right">Gap</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
   for(var i=0;i<items.length;i++){var c=items[i];var gc=c.gap>=0?'var(--gn)':'var(--rd)';var tag=c.gap>=c.pBE*0.4?'<span class="tag tag-ok">≥+40%</span>':c.gap>=c.pBE*0.3?'<span class="tag tag-ok">≥+30%</span>':c.gap>=c.pBE*0.2?'<span class="tag tag-ok">≥+20%</span>':c.pv>=c.pCMG15?'<span class="tag tag-ok">≥CMG15</span>':c.gap>=0?'<span class="tag tag-warn">≥BE</span>':'<span class="tag tag-bad">BAJO</span>';var rb=c.gap<0?'background:rgba(255,77,106,.04);':'';
-  h+='<tr style="'+rb+'"><td style="font-size:10px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right;color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.ebitda)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pCMG15)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.cmg15)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pBE)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p30)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e30)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p40)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e40)+'</td><td class="mono" style="text-align:right;color:'+gc+'">'+(c.gap>=0?'+':'')+fd(c.gap)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
+  h+='<tr style="'+rb+'"><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono" style="text-align:right;color:'+(c.ebitda>=0?'var(--gn)':'var(--rd)')+'">'+fd(c.ebitda)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pCMG15)+'</td><td class="mono" style="text-align:right;color:var(--ac)">'+fd(c.cmg15)+'</td><td class="mono" style="text-align:right;color:var(--or);font-weight:600">'+fd(c.pBE)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e20)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p30)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e30)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.p40)+'</td><td class="mono" style="text-align:right;color:var(--gn)">'+fd(c.e40)+'</td><td class="mono" style="text-align:right;color:'+gc+'">'+(c.gap>=0?'+':'')+fd(c.gap)+'</td><td class="mono">'+fmt(c.v)+'</td><td>'+tag+'</td></tr>';}
   h+='</tbody></table>';document.getElementById("pr-tbl").innerHTML=h;
 }
 
@@ -371,9 +351,9 @@ function renderAlertas(){
   for(var i=0;i<all.length;i++){var c=all[i];if(c.mp>c.pv&&c.v>0)costGt.push(c);if(c.ebitda<0&&c.v>0)negM.push(c);}
   negM.sort(function(a,b){return a.ebitdaAbs-b.ebitdaAbs});var tL=0;for(var i=0;i<negM.length;i++)tL+=negM[i].ebitdaAbs;
   var h='<div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi" style="border-color:var(--rd)"><div class="lb">Costo > Precio</div><div class="vl neg">'+costGt.length+'</div></div><div class="kpi" style="border-color:var(--or)"><div class="lb">EBITDA Negativo</div><div class="vl warn">'+negM.length+'</div></div><div class="kpi"><div class="lb">Pérdida Total</div><div class="vl neg">USD '+fmt(tL)+'</div></div></div>';
-  if(costGt.length){h+='<div class="card full"><h3>COSTO MP > PRECIO</h3><table><thead><tr><th>Producto</th><th>Línea</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Dif</th><th>Vol</th></tr></thead><tbody>';for(var i=0;i<costGt.length;i++){var c=costGt[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td style="color:var(--t2)">'+c.l+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp)+'</td><td class="mono neg" style="text-align:right">('+fd(c.mp-c.pv)+')</td><td class="mono">'+fmt(c.v)+'</td></tr>';}h+='</tbody></table></div>';}
-  h+='<div class="card full"><h3>EBITDA NEGATIVO — Pérdida: USD '+fmt(tL)+'</h3><table><thead><tr><th>Producto</th><th>Línea</th><th style="text-align:right">Pérdida/kg</th><th style="text-align:right">Pérdida Total</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
-  for(var i=0;i<negM.length;i++){var c=negM[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td style="color:var(--t2)">'+c.l+'</td><td class="mono neg" style="text-align:right">'+fd(c.ebitda)+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
+  if(costGt.length){h+='<div class="card full"><h3>COSTO MP > PRECIO</h3><table><thead><tr><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Dif</th><th>Vol</th></tr></thead><tbody>';for(var i=0;i<costGt.length;i++){var c=costGt[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp)+'</td><td class="mono neg" style="text-align:right">('+fd(c.mp-c.pv)+')</td><td class="mono">'+fmt(c.v)+'</td></tr>';}h+='</tbody></table></div>';}
+  h+='<div class="card full"><h3>EBITDA NEGATIVO — Pérdida: USD '+fmt(tL)+'</h3><table><thead><tr><th>Producto</th><th style="text-align:right">Pérdida/kg</th><th style="text-align:right">Pérdida Total</th><th>Margen</th><th>Vol</th></tr></thead><tbody>';
+  for(var i=0;i<negM.length;i++){var c=negM[i];h+='<tr><td style="font-weight:500">'+c.p+'</td><td class="mono neg" style="text-align:right">'+fd(c.ebitda)+'</td><td class="mono neg" style="text-align:right">('+fmt(c.ebitdaAbs)+')</td><td class="mono neg">'+pct(c.ebitdaPct)+'</td><td class="mono">'+fmt(c.v)+'</td></tr>';}
   h+='</tbody></table></div>';document.getElementById("content").innerHTML=h;
 }
 
@@ -408,9 +388,9 @@ function doFU(){
   var all=calcAllPL();var fl=document.getElementById("u-l").value;var st=document.getElementById("u-st").value;var fs=document.getElementById("u-s").value.toLowerCase();
   var items=all.filter(function(c){if(c.v<=0)return false;if(fl!=="ALL"&&c.l!==fl)return false;if(st==="POS"&&c.ebitda<=0)return false;if(st==="NEG"&&c.ebitda>0)return false;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)return false;return true;}).sort(function(a,b){return b.rev-a.rev;});
   var maxP=0;for(var i=0;i<items.length;i++)if(items[i].pv>maxP)maxP=items[i].pv;var gf=gp('pGF')+gp('pBACK');
-  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP</th><th style="text-align:right">CMG</th><th style="text-align:right">EBITDA</th><th>%</th><th>Waterfall</th></tr></thead><tbody>';
+  var h='<table><thead><tr><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP</th><th style="text-align:right">CMG</th><th style="text-align:right">EBITDA</th><th>%</th><th>Waterfall</th></tr></thead><tbody>';
   for(var i=0;i<items.length;i++){var c=items[i];var mpr=c.mp;var bw=maxP>0?80:0;var mpW=mpr/maxP*bw;var modW=c.mod/maxP*bw;var impW=(c.imp+c.fl)/maxP*bw;var gfW=gf/maxP*bw;var eW=c.ebitda>0?c.ebitda/maxP*bw:0;var lW=c.ebitda<0?Math.min(Math.abs(c.ebitda)/maxP*bw,12):0;var ec=c.ebitdaPct>0.1?'var(--gn)':c.ebitdaPct>0?'var(--or)':'var(--rd)';
-  h+='<tr style="cursor:pointer" onclick="showUD('+i+')"><td style="font-size:9px;color:var(--t2)">'+c.l+'</td><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td><div style="display:flex;height:8px;border-radius:2px;overflow:hidden;width:'+bw+'px;background:var(--bd)"><div style="width:'+mpW+'px;background:var(--rd);opacity:.7"></div><div style="width:'+modW+'px;background:var(--or);opacity:.7"></div><div style="width:'+impW+'px;background:var(--pu);opacity:.5"></div><div style="width:'+gfW+'px;background:var(--t2);opacity:.5"></div>'+(c.ebitda>0?'<div style="width:'+eW+'px;background:var(--gn)"></div>':'<div style="width:'+lW+'px;background:var(--rd);opacity:.3"></div>')+'</div></td></tr>';}
+  h+='<tr style="cursor:pointer" onclick="showUD('+i+')"><td style="font-weight:500">'+c.p+'</td><td class="mono" style="text-align:right">'+fd(c.pv)+'</td><td class="mono neg" style="text-align:right">'+fd(c.mp)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.cmg)+'</td><td class="mono" style="text-align:right;color:'+ec+'">'+fd(c.ebitda)+'</td><td class="mono" style="color:'+ec+'">'+pct(c.ebitdaPct)+'</td><td><div style="display:flex;height:8px;border-radius:2px;overflow:hidden;width:'+bw+'px;background:var(--bd)"><div style="width:'+mpW+'px;background:var(--rd);opacity:.7"></div><div style="width:'+modW+'px;background:var(--or);opacity:.7"></div><div style="width:'+impW+'px;background:var(--pu);opacity:.5"></div><div style="width:'+gfW+'px;background:var(--t2);opacity:.5"></div>'+(c.ebitda>0?'<div style="width:'+eW+'px;background:var(--gn)"></div>':'<div style="width:'+lW+'px;background:var(--rd);opacity:.3"></div>')+'</div></td></tr>';}
   h+='</tbody></table>';document.getElementById("u-tbl").innerHTML=h;window._ui=items;
 }
 function showUD(idx){var c=window._ui[idx];var row=function(lb,vl,col,ind,bold){return '<div class="sr" style="'+(ind?'padding-left:10px':'')+'"><span class="lb"'+(bold?' style="font-weight:700"':'')+'>'+lb+'</span><span class="vl"'+(col?' style="color:'+col+'"':'')+'>'+vl+'</span></div>';};
@@ -456,9 +436,9 @@ function renderInventario(){
   document.getElementById("content").innerHTML=h;renderInvTbl();
 }
 function renderInvTbl(){
-  var h='<table><thead><tr><th>Línea</th><th>Producto</th><th>Origen</th><th style="text-align:right">Vol</th><th>Lead Time</th><th>Stock Seg</th><th>Std</th><th style="text-align:right">Stock kg</th><th style="text-align:right">MP</th><th style="text-align:right">Stock USD</th><th style="text-align:right">CF/kg</th><th>%MP</th><th style="text-align:right">CF Anual</th></tr></thead><tbody>';
+  var h='<table><thead><tr><th>Producto</th><th>Origen</th><th style="text-align:right">Vol</th><th>Lead Time</th><th>Stock Seg</th><th>Std</th><th style="text-align:right">Stock kg</th><th style="text-align:right">MP</th><th style="text-align:right">Stock USD</th><th style="text-align:right">CF/kg</th><th>%MP</th><th style="text-align:right">CF Anual</th></tr></thead><tbody>';
   for(var i=0;i<P.length;i++){var s=P[i],c=calcInv(s);var cc=c.cfs>1?"var(--rd)":c.cfs>0.5?"var(--or)":"var(--gn)";
-  h+='<tr><td style="font-size:9px;color:var(--t2)">'+s.l+'</td><td style="font-weight:500;font-size:11px">'+s.p+'</td><td style="font-size:9px;color:var(--t2)">'+(s.o||'')+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(s.v)+'</td>';
+  h+='<tr><td style="font-weight:500;font-size:11px">'+s.p+'</td><td style="font-size:9px;color:var(--t2)">'+(s.o||'')+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(s.v)+'</td>';
   h+='<td><input type="range" min="0" max="120" value="'+s.lt+'" oninput="uiInv('+i+',\x27lt\x27,this.value)" style="width:50px"><span class="pv">'+s.lt+'d</span></td>';
   h+='<td><input type="range" min="0" max="90" value="'+s.ss+'" oninput="uiInv('+i+',\x27ss\x27,this.value)" style="width:50px"><span class="pv">'+s.ss+'d</span></td>';
   h+='<td class="mono" style="text-align:center;font-size:10px">'+c.sd+'</td><td class="mono" style="text-align:right;font-size:10px">'+fmt(c.sk)+'</td><td class="mono" style="text-align:right;font-size:10px">'+fd(s.mp)+'</td><td class="mono warn" style="text-align:right;font-size:10px">'+fmt(c.su)+'</td><td class="mono" style="text-align:right;color:'+cc+';font-size:10px">'+fd(c.cfs)+'</td><td class="mono" style="color:'+cc+';font-size:10px">'+(c.cfp*100).toFixed(1)+'%</td><td class="mono neg" style="text-align:right;font-size:10px">'+fmt(c.cfa)+'</td></tr>';}
@@ -580,7 +560,7 @@ function cotDoFiltro(){
   
   // Construir tabla
   var h = '<table style="width:100%;font-size:11px"><thead><tr style="background:var(--s1);position:sticky;top:0;z-index:1">';
-  h += '<th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--bd);color:var(--t2)">Línea</th>';
+  h += '';
   h += '<th style="padding:6px 8px;text-align:left;border-bottom:1px solid var(--bd);color:var(--t2)">Producto</th>';
   h += '<th style="padding:6px 8px;text-align:right;border-bottom:1px solid var(--bd);color:var(--t2)">Precio</th>';
   h += '<th style="padding:6px 8px;text-align:right;border-bottom:1px solid var(--bd);color:var(--t2)">Vol/año</th>';
@@ -590,7 +570,7 @@ function cotDoFiltro(){
     var sel = (c.idx === window._cotState.productoP_idx);
     var bgRow = sel ? 'background:rgba(135,206,235,0.18);' : '';
     h += '<tr style="cursor:pointer;'+bgRow+'border-bottom:1px solid var(--bd)" onclick="cotSelectProduct('+c.idx+')">';
-    h += '<td style="padding:5px 8px;color:var(--t2);font-size:10px">'+c.l+'</td>';
+    h += '';
     h += '<td style="padding:5px 8px;font-weight:'+(sel?'600':'400')+';color:'+(sel?'var(--ac)':'var(--tx)')+'">'+(sel?'▶ ':'')+c.p+'</td>';
     h += '<td style="padding:5px 8px;text-align:right;font-family:monospace">'+c.pv.toFixed(4)+'</td>';
     h += '<td style="padding:5px 8px;text-align:right;font-family:monospace;color:var(--t2)">'+(c.v ? Math.round(c.v).toLocaleString('es-AR') : '0')+'</td>';
