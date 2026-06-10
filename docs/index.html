@@ -323,7 +323,7 @@ function renderPricing(){
   h+='<input id="pr-s" placeholder="Buscar..." oninput="doFPR()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:5px;border-radius:6px;font-size:11px;flex:1">';
   h+='<button class="btn-sm" style="background:#87CEEB;color:#000;border-color:#87CEEB;font-weight:600" onclick="exportPricingPDF()">📄 Exportar PDF</button><button class="btn-sm" style="background:var(--gn);color:#000;border-color:var(--gn);font-weight:600" onclick="exportVentasPDF()">📄 PDF Ventas</button></div>';
   h+='<div id="pr-tbl" style="max-height:calc(100vh - 340px);overflow-y:auto;overflow-x:auto"></div></div>';
-  var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=(c.mp+mod+fl+gf+back)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
+  var nB=0,nA=0,tG=0;for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;var pBE=(c.mp+mod+fl+gf)/(1-impPct);if(c.pv<pBE){nB++;tG+=(pBE-c.pv)*c.v;}else nA++;}
   var kh='<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">';
   kh+='<div class="kpi"><div class="lb">Bajo Breakeven</div><div class="vl neg">'+nB+'</div></div>';
   kh+='<div class="kpi"><div class="lb">Sobre Breakeven</div><div class="vl pos">'+nA+'</div></div>';
@@ -332,7 +332,7 @@ function renderPricing(){
 }
 function doFPR(){
   var all=calcAllPL();var fl_v=document.getElementById("pr-l").value;var st=document.getElementById("pr-st").value;var fs=document.getElementById("pr-s").value.toLowerCase();
-  var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),impPct=gp('pIMP')/100;
+  var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF'),back=gp('pBACK'),impPct=gp('pIMP')/100;
   var items=[];for(var i=0;i<all.length;i++){var c=all[i];if(fl_v!=="ALL"&&c.l!==fl_v)continue;if(fs&&(c.p+c.l).toLowerCase().indexOf(fs)<0)continue;
   var cb=c.mp+mod+fl+gf+back;var pBE=cb/(1-impPct);if(st==="BAJO"&&c.pv>=pBE)continue;if(st==="OK"&&c.pv<pBE)continue;
   var pCMG15=(c.mp+mod+fl)/(1-impPct-0.15);var cmg15=pCMG15-c.mp-mod-pCMG15*impPct-fl;var p20=pBE*1.20;var e20=p20-c.mp-mod-p20*impPct-fl-gf;var p30=pBE*1.30;var e30=p30-c.mp-mod-p30*impPct-fl-gf;var p40=pBE*1.40;var e40=p40-c.mp-mod-p40*impPct-fl-gf;
