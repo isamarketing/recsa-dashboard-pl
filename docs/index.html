@@ -984,7 +984,7 @@ function exportCSV(){
 function exportVentasPDF(){
   var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF')+gp('pBACK'),impPct=gp('pIMP')/100;
   var items=[];
-  for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;
+  for(var i=0;i<all.length;i++){var c=all[i];if(c.v<=0)continue;if(c.mp<=0)continue;
     var cb=c.mp+mod+fl+gf;var pBE=cb/(1-impPct);
     items.push({l:c.l,p:c.p,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
   }
@@ -1021,7 +1021,7 @@ function exportVentasPDF(){
 function exportPricingPDF(){
   var all=calcAllPL();var mod=gp('pMOD'),fl=gp('pFL'),gf=gp('pGF')+gp('pBACK'),impPct=gp('pIMP')/100;
   var items=[];
-  for(var i=0;i<all.length;i++){var c=all[i];
+  for(var i=0;i<all.length;i++){var c=all[i];if(c.mp<=0)continue;
     var cb=c.mp+mod+fl+gf;var pBE=cb/(1-impPct);
     var pCMG15=(c.mp+mod+fl)/(1-impPct-0.15);
     items.push({l:c.l,p:c.p,pCMG15:pCMG15,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
