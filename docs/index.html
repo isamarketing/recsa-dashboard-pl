@@ -989,28 +989,21 @@ function exportVentasPDF(){
     items.push({l:c.l,p:c.p,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
   }
   items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
-  var doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var doc=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   var pageW=doc.internal.pageSize.getWidth();
   doc.setFillColor(26,34,53);doc.rect(0,0,pageW,32,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(79,140,255);
   doc.text('RECSA',14,16);doc.setTextColor(232,236,244);doc.text(' \u2014 Lista de Precios Venta',14+doc.getTextWidth('RECSA'),16);
   doc.setFontSize(10);doc.setTextColor(136,153,180);
-  doc.text('Breakeven | +20% | +30% | +40%',14,26);
+  doc.text('4 escenarios (USD/kg): Breakeven | +20% | +30% | +40%',14,26);
   doc.text(new Date().toLocaleDateString('es-AR'),pageW-14,26,{align:'right'});
-  var tBody=items.map(function(c){return[c.l,c.p,'USD '+c.pBE.toFixed(2),'USD '+c.p20.toFixed(2),'USD '+c.p30.toFixed(2),'USD '+c.p40.toFixed(2)];});
+  var tBody=items.map(function(c){return[c.l,c.p,c.pBE.toFixed(2),c.p20.toFixed(2),c.p30.toFixed(2),c.p40.toFixed(2)];});
   doc.autoTable({startY:38,
-    head:[['L\u00ednea','Producto','Breakeven','Precio +20%','Precio +30%','Precio +40%']],
+    head:[['L\u00ednea','Producto','Breakeven','+20%','+30%','+40%']],
     body:tBody,theme:'grid',
-    styles:{fontSize:9,cellPadding:3,font:'helvetica'},
-    headStyles:{fillColor:[26,34,53],textColor:[232,236,244],fontStyle:'bold',fontSize:9},
-    columnStyles:{
-      0:{cellWidth:30},
-      1:{cellWidth:55},
-      2:{halign:'right',cellWidth:25,fontStyle:'bold',textColor:[255,184,77]},
-      3:{halign:'right',cellWidth:25,textColor:[0,160,130]},
-      4:{halign:'right',cellWidth:25,textColor:[0,160,130]},
-      5:{halign:'right',cellWidth:25,textColor:[0,160,130]}
-    },
+    styles:{fontSize:7,cellPadding:1.5,font:'helvetica'},
+    headStyles:{fillColor:[26,34,53],textColor:[232,236,244],fontStyle:'bold',fontSize:7},
+    columnStyles:{0:{cellWidth:18},1:{cellWidth:80},2:{cellWidth:21,halign:'right'},3:{cellWidth:21,halign:'right'},4:{cellWidth:21,halign:'right'},5:{cellWidth:21,halign:'right'}},
     alternateRowStyles:{fillColor:[245,247,250]},
     margin:{left:14,right:14}
   });
@@ -1027,29 +1020,21 @@ function exportPricingPDF(){
     items.push({l:c.l,p:c.p,pCMG15:pCMG15,pBE:pBE,p20:pBE*1.20,p30:pBE*1.30,p40:pBE*1.40});
   }
   items.sort(function(a,b){return a.l.localeCompare(b.l)||a.p.localeCompare(b.p)});
-  var doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var doc=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   var pageW=doc.internal.pageSize.getWidth();
   doc.setFillColor(26,34,53);doc.rect(0,0,pageW,32,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(79,140,255);
   doc.text('RECSA',14,16);doc.setTextColor(232,236,244);doc.text(' \u2014 Lista de Precios',14+doc.getTextWidth('RECSA'),16);
   doc.setFontSize(10);doc.setTextColor(136,153,180);
-  doc.text('5 escenarios: CMG 15% | Breakeven | +20% | +30% | +40%',14,26);
+  doc.text('5 escenarios (USD/kg): CMG 15% | Breakeven | +20% | +30% | +40%',14,26);
   doc.text(new Date().toLocaleDateString('es-AR'),pageW-14,26,{align:'right'});
-  var tBody=items.map(function(c){return[c.l,c.p,'USD '+c.pCMG15.toFixed(2),'USD '+c.pBE.toFixed(2),'USD '+c.p20.toFixed(2),'USD '+c.p30.toFixed(2),'USD '+c.p40.toFixed(2)];});
+  var tBody=items.map(function(c){return[c.l,c.p,c.pCMG15.toFixed(2),c.pBE.toFixed(2),c.p20.toFixed(2),c.p30.toFixed(2),c.p40.toFixed(2)];});
   doc.autoTable({startY:38,
-    head:[['L\u00ednea','Producto','Precio CMG 15%','Precio Breakeven','Precio +20%','Precio +30%','Precio +40%']],
+    head:[['L\u00ednea','Producto','CMG 15%','Breakeven','+20%','+30%','+40%']],
     body:tBody,theme:'grid',
-    styles:{fontSize:9,cellPadding:3,font:'helvetica'},
-    headStyles:{fillColor:[26,34,53],textColor:[232,236,244],fontStyle:'bold',fontSize:9},
-    columnStyles:{
-      0:{cellWidth:28},
-      1:{cellWidth:52},
-      2:{halign:'right',cellWidth:24,textColor:[79,140,255]},
-      3:{halign:'right',cellWidth:24,fontStyle:'bold',textColor:[255,184,77]},
-      4:{halign:'right',cellWidth:24,textColor:[0,160,130]},
-      5:{halign:'right',cellWidth:24,textColor:[0,160,130]},
-      6:{halign:'right',cellWidth:24,textColor:[0,160,130]}
-    },
+    styles:{fontSize:7,cellPadding:1.5,font:'helvetica'},
+    headStyles:{fillColor:[26,34,53],textColor:[232,236,244],fontStyle:'bold',fontSize:7},
+    columnStyles:{0:{cellWidth:16},1:{cellWidth:66},2:{cellWidth:20,halign:'right'},3:{cellWidth:20,halign:'right'},4:{cellWidth:20,halign:'right'},5:{cellWidth:20,halign:'right'},6:{cellWidth:20,halign:'right'}},
     alternateRowStyles:{fillColor:[245,247,250]},
     margin:{left:14,right:14}
   });
